@@ -5,25 +5,25 @@ import {QuestionAttempted} from '../eventsInterfaces/QuestionAttempted';
  */
 export class QuizParams {
 
-    private _fireQuestionPickedEvent: AmeboEvent<number>;
+    private _questionPickedEvent: AmeboEvent<number>;
     private _questionAttempted: AmeboEvent<QuestionAttempted>;
     private _bonusAttempted: AmeboEvent<string>;
 
     constructor() {
-        this._fireQuestionPickedEvent = new AmeboEvent<number>();
+        this._questionPickedEvent = new AmeboEvent<number>();
         this._bonusAttempted = new AmeboEvent<string>();
         this._questionAttempted = new AmeboEvent<QuestionAttempted>();
     }
 
-    questionPickedEvent(): AmeboEvent {
-        return this._fireQuestionPickedEvent;
+    questionPickedEvent(): AmeboEvent<number> {
+        return this._questionPickedEvent;
     }
 
     fireQuestionPickedEvent(value: number) {
-        this._fireQuestionPickedEvent.value = value;
+        this._questionPickedEvent.value = value;
     }
 
-    bonusAttemptedEvent(): AmeboEvent {
+    bonusAttemptedEvent(): AmeboEvent<string> {
         return this._bonusAttempted;
     }
 
@@ -31,7 +31,7 @@ export class QuizParams {
         this._bonusAttempted.value = value;
     }
 
-    questionAttemptedEvent(): AmeboEvent {
+    questionAttemptedEvent(): AmeboEvent<QuestionAttempted> {
         return this._questionAttempted;
     }
 

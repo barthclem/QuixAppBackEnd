@@ -5,6 +5,7 @@ import {QuizParams} from './QuixParams';
 import {QuestionTag} from '../helper/questionTag';
 import {QuixUtility} from '../helper/Utility';
 import {QuixEvents} from './quixEvents';
+import {QuestionType} from '../helper/QuestionType';
 /**
  * Created by barthclem on 11/19/17.
  */
@@ -59,8 +60,8 @@ export class RoundsManager  {
         this._currentTeamIndex %= this.participatingTeams.length;
     }
 
-    updateQuestionTag (questionNumber: number): boolean {
-        const targetTag = this.questionTags.find((tag) => {
+    updateQuestionTag (questionNumber: number): void {
+        const targetTag = this.questionTags.find((tag: QuestionTag) => {
             return tag.questionNumber === questionNumber;
         });
         if (targetTag) {
@@ -76,7 +77,14 @@ export class RoundsManager  {
 
     getQuestion ( questionNumber: number): Question  {
         this.currentQuestionNumber = questionNumber;
-        return this.questions.find( x => x.id === questionNumber);
+        const randQue = {
+            id: 0,
+            type: QuestionType.PICTURE,
+            category: '',
+            questionText: '',
+            options: []};
+        const foundQuestion = this.questions.find( (x: Question) => x.id === questionNumber);
+        return foundQuestion ? foundQuestion : randQue;
     }
 
     answerIsCorrect ( answer: string): boolean {
@@ -87,7 +95,7 @@ export class RoundsManager  {
         this.quizParameters.questionPickedEvent().onValueChanged(
             (queNumber) => {
                 const question = this.getQuestion(queNumber);
-                this.updateQuestionTag(this.quizParameters.selectedQuestion);
+                this.updateQuestionTag(queNumber);
                 this.socketService.sendQuestionBroadcast(question, this.currentActiveTeam.name);
             });
 
@@ -146,7 +154,7 @@ export class RoundsManager  {
         this.quixEvents.startTeamBonusSessionEvent()
             .onValueChanged(() => {
                 this.announceBonusTeam();
-                const question = this.getQuestion(this.quizParameters.selectedQuestion);
+                const question = this.getQuestion(this.currentQuestionNumber);
                 if (question) {
                     this.socketService.sendQuestionBroadcast(question, this.bonusTeam().name);
                 }
@@ -211,7 +219,7 @@ export class RoundsManager  {
     }
 
 
-    startRounds (): string {
+    startRounds (): void {
         console.log(`Started Rounds`);
         this.quixEvents.firstNewRoundEvent(1);
     }

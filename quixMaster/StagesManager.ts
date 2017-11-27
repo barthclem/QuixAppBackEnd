@@ -40,13 +40,13 @@ export class StageManager {
     }
 
     startNewStage (): void {
-        this._quixEvents.startStageEvent = this._currentStageIndex + 1;
+        this._quixEvents.firstNewStageEvent(this._currentStageIndex + 1);
     }
 
     initializeNewStage (): void {
         this._currentStage = this.questionStages[this._currentStageIndex++];
         this.socketService.broadcastNewCategory(this._currentStage.title, this._currentStage.numberOfRounds,
-            this.qualifiedTeams.map(team => team.name));
+            this.qualifiedTeams.map((team: Team) => team.name));
         this.stageRoundsManager = new RoundsManager(this.qualifiedTeams, this._currentStage.entries, this.socketService,
             this.quizParams, this.quixEvents, this._currentStage.numberOfRounds);
     }

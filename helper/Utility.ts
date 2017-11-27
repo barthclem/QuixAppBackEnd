@@ -24,7 +24,8 @@ export  class QuixUtility {
                 index: index++,
                 title: stage,
                 numberOfEntries: stageQuestions.length,
-                entries: stageQuestions
+                entries: stageQuestions,
+                numberOfRounds: 0
             });
         });
         return questionStages;

@@ -35,14 +35,14 @@ export class QuixEvents {
         this._endOfTeamBonusSession = new AmeboEvent<number>();
     }
 
-    endOfTeamBonusSessionEvent(): AmeboEvent {
+    endOfTeamBonusSessionEvent(): AmeboEvent<number> {
         return this._endOfTeamBonusSession;
     }
 
     fireEndOfTeamBonusSessionEvent(value: number) {
         this._endOfTeamBonusSession.value = value;
     }
-    startTeamBonusSessionEvent(): AmeboEvent {
+    startTeamBonusSessionEvent(): AmeboEvent<number> {
         return this._startTeamBonusSession;
     }
 
@@ -50,14 +50,14 @@ export class QuixEvents {
         this._startTeamBonusSession.value = value;
     }
 
-    endOfTeamSessionEvent(): AmeboEvent {
+    endOfTeamSessionEvent(): AmeboEvent<number> {
         return this._endOfTeamSession;
     }
 
     fireEndOfTeamSessionEvent(value: number) {
         this._endOfTeamSession.value = value;
     }
-    startTeamSessionEvent(): AmeboEvent {
+    startTeamSessionEvent(): AmeboEvent<number> {
         return this._startTeamSession;
     }
 
@@ -65,7 +65,7 @@ export class QuixEvents {
         this._startTeamSession.value = value;
     }
 
-    endOfRoundEvent(): AmeboEvent {
+    endOfRoundEvent(): AmeboEvent<number> {
         return this._endOfRoundEvent;
     }
 
@@ -73,7 +73,7 @@ export class QuixEvents {
         this._endOfRoundEvent.value = value;
     }
 
-    startRoundEvent(): AmeboEvent {
+    startRoundEvent(): AmeboEvent<number> {
         return this._startRoundEvent;
     }
 
@@ -81,21 +81,21 @@ export class QuixEvents {
         this._startRoundEvent.value = value;
     }
 
-    endOfAllStageRoundsEvent(): AmeboEvent {
+    endOfAllStageRoundsEvent(): AmeboEvent<number> {
         return this._endOfAllStageRounds;
     }
 
     fireEndOfAllStageRoundsEvent(value: number) {
         this._endOfAllStageRounds.value = value;
     }
-    endOfStageRoundsEvent(): AmeboEvent {
+    endOfStageRoundsEvent(): AmeboEvent<number> {
         return this._endOfStageRounds;
     }
 
     fireEndOfStageRoundsEvent(value: number) {
         this._endOfStageRounds.value = value;
     }
-    startStageRoundsEvent(): AmeboEvent {
+    startStageRoundsEvent(): AmeboEvent<number> {
         return this._startStageRounds;
     }
 
@@ -103,7 +103,7 @@ export class QuixEvents {
         this._startStageRounds.value = value;
     }
 
-    startAllStagesEvent(): AmeboEvent {
+    startAllStagesEvent(): AmeboEvent<number> {
         return this._startAllStagesEvent;
     }
 
@@ -111,21 +111,21 @@ export class QuixEvents {
         this._startAllStagesEvent.value = value;
     }
 
-    endOfAllStagesEvent(): AmeboEvent {
+    endOfAllStagesEvent(): AmeboEvent<number> {
         return this._endOfAllStagesEvent;
     }
 
     fireEndOfAllStagesEvent(value: number) {
         this._endOfAllStagesEvent.value = value;
     }
-    endStageEvent(): AmeboEvent {
+    endStageEvent(): AmeboEvent<number> {
         return this._endStageEvent;
     }
 
     fireEndStageEvent(value: number) {
         this._endStageEvent.value = value;
     }
-    startStageEvent(): AmeboEvent {
+    startStageEvent(): AmeboEvent<number> {
         return this._startStageEvent;
     }
 

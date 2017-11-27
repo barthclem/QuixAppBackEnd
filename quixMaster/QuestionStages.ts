@@ -7,5 +7,5 @@ export interface QuestionStage {
     title: string;
     numberOfEntries: number;
     entries: Question [];
-    numberOfRounds?: number;
+    numberOfRounds: number;
 }

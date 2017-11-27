@@ -8,5 +8,5 @@ export class QuestionStageImpl implements QuestionStage {
     title: string;
     numberOfEntries: number;
     entries: Question[];
-
+    numberOfRounds: number;
 }
