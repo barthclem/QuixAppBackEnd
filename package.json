@@ -1,0 +1,45 @@
+{
+  "name": "test-chat",
+  "version": "1.0.0",
+  "description": "This is a rest API for test-chat app",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "start": "tsc && node build/index.js",
+    "debug": "tsc && DEBUG=* node --inspect build/index.js",
+    "lint": "lint",
+    "test": "istanbul cover _mocha -- -R spec "
+  },
+  "author": "b@klem",
+  "license": "MIT",
+  "dependencies": {
+    "@types/socket.io-client": "^1.4.32",
+    "babel": "^6.23.0",
+    "babel-istanbul": "^0.12.2",
+    "body-parser": "^1.18.2",
+    "cors": "^2.8.4",
+    "eslint": "^4.11.0",
+    "express": "^4.16.2",
+    "http": "0.0.0",
+    "istanbul": "^0.4.5",
+    "mocha": "^4.0.1",
+    "mongodb": "^2.2.31",
+    "nodemon": "^1.12.1",
+    "path": "^0.12.7",
+    "should": "^13.1.2",
+    "socket-tester": "^1.2.1",
+    "socket.io": "^2.0.3",
+    "ts-events": "^3.2.0",
+    "typed-event-emitter": "^1.0.3"
+  },
+  "devDependencies": {
+    "@types/express": "^4.0.39",
+    "@types/node": "^8.0.53",
+    "@types/socket.io": "^1.4.31",
+    "nyc": "^11.2.1",
+    "tslint": "^5.8.0",
+    "typescript": "^2.6.1"
+  }
+}

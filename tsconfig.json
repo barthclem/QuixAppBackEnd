@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "lib": ["es6",
+      "dom"],
+    "sourceMap": true,
+    "strict": true,
+    "moduleResolution": "node",
+    "outDir": "build",
+    "typeRoots": ["node_module/@types"]
+  }
+}
