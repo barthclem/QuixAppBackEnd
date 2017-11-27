@@ -157,22 +157,23 @@ export class SocketRoutes {
     whenATeamPicksQuestion (socket: any) {
         socket.on(QuizEventRegistry.QUESTION_SELECTED_EVENT, (choice: any) => {
             console.log(`Question Selected by a team : choice ${JSON.stringify(choice)}`);
-            this.quizParameter.questionPicked = choice.questionNumber;
+            this.quizParameter.fireQuestionPickedEvent(choice.questionNumber);
         });
     }
 
     whenATeamSelectsAnAnswer (socket: any) {
         socket.on(QuizEventRegistry.QUESTION_ANSWERED_EVENT, (selectBody: any) => {
             console.log(`Attempt to answer the question is by a team`);
-            this.quizParameter.questionAttempted = {selectedOption:selectBody.selectedOption,
-            timeToAnswer: selectBody.timeToAnswer};
+            this.quizParameter.fireQuestionAttemptedEvent(
+                {selectedOption:selectBody.selectedOption,
+                    timeToAnswer: selectBody.timeToAnswer});
         });
     }
 
     whenAUserAttemptsABonus (socket: any) {
         socket.on(QuizEventRegistry.BONUS_ATTEMPTED_EVENT, (selectBody: any) => {
             console.log(`Bonus is attempted`);
-            this.quizParameter.bonusAttempted = selectBody.selectedOption;
+            this.quizParameter.fireBonusAttemptedEvent(selectBody.selectedOption);
         });
     }
 

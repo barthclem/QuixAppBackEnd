@@ -26,20 +26,24 @@ export class StageManager {
         this.qualifiedTeams = teams;
         this.setUpQuestions(questionData);
         this._quixEvents = new QuixEvents();
+        this.onEndOfAllStagesEvent();
+        this.onEndOfStage();
+        this.onStartOfAllStages();
+        this.onStartOfStage();
     }
 
-    setUpQuestions (questions: Question []) {
+    setUpQuestions (questions: Question []): void {
         const questionData = PseudoQuestions;
         this.stages = QuixUtility.stageExtractor(questionData);
         this.questionStages = QuixUtility.questionClassifier(this.stages, questionData);
         this.questionStages.map(stage => QuixUtility.numberOfRoundsCalc(stage, this.qualifiedTeams.length));
     }
 
-    startNewStage () {
-        this._quixEvents.startStageEvent = this._currentStageIndex +1;
+    startNewStage (): void {
+        this._quixEvents.startStageEvent = this._currentStageIndex + 1;
     }
 
-    initializeNewStage () {
+    initializeNewStage (): void {
         this._currentStage = this.questionStages[this._currentStageIndex++];
         this.socketService.broadcastNewCategory(this._currentStage.title, this._currentStage.numberOfRounds,
             this.qualifiedTeams.map(team => team.name));
@@ -47,8 +51,8 @@ export class StageManager {
             this.quizParams, this.quixEvents, this._currentStage.numberOfRounds);
     }
 
-    onStartOfAllStages () {
-        this._quixEvents.startAllStagesEvent
+    onStartOfAllStages (): void {
+        this._quixEvents.startAllStagesEvent()
             .onValueChanged((numberOfStages) => {
                this._numberOfStages = numberOfStages;
                this._currentStageIndex = 0;
@@ -57,29 +61,28 @@ export class StageManager {
             });
     }
 
-   onEndOfAllStagesEvent () {
-        this._quixEvents.endOfAllStagesEvent
+   onEndOfAllStagesEvent (): void {
+        this._quixEvents.endOfAllStagesEvent()
             .onValueChanged((numberOfStages) => {
                this._numberOfStages = numberOfStages;
             });
    }
 
-   onStartOfStage () {
-       this._quixEvents.startStageEvent
+   onStartOfStage (): void {
+       this._quixEvents.startStageEvent()
            .onValueChanged(() => {
            console.log(` Start of new Stage: ${this._currentStageIndex}`);
               this.stageRoundsManager.startRounds();
            });
    }
 
-   onEndOfStage () {
-       this._quixEvents.endStageEvent
+   onEndOfStage (): void {
+       this._quixEvents.endStageEvent()
            .onValueChanged(() => {
-               if(this._currentStageIndex === this._numberOfStages-1) {
-                   this._quixEvents.endOfAllStagesEvent = 1;
-               }
-               else {
-                   this._quixEvents.startStageEvent = 0;
+               if (this._currentStageIndex === this._numberOfStages - 1) {
+                   this._quixEvents.fireEndOfAllStagesEvent(1);
+               } else {
+                   this._quixEvents.firstNewStageEvent(1);
                    this.initializeNewStage();
                    this.startNewStage();
                }
@@ -87,9 +90,9 @@ export class StageManager {
    }
 
 
-    runStages() {
+    runStages(): void {
         console.log(` Starting the stage runner`);
-        this._quixEvents.startAllStagesEvent = this.questionStages.length;
+        this._quixEvents.firstStartAllStagesEvent(this.questionStages.length);
     }
 
     get quixEvents(): QuixEvents {

@@ -1,4 +1,3 @@
-import {QuestionPicked} from '../eventsInterfaces/QuestionPicked';
 import {AmeboEvent} from '../events/AmeboEvent';
 import {QuestionAttempted} from '../eventsInterfaces/QuestionAttempted';
 /**
@@ -6,36 +5,37 @@ import {QuestionAttempted} from '../eventsInterfaces/QuestionAttempted';
  */
 export class QuizParams {
 
-    private _questionPicked: AmeboEvent;
-    private _questionAttempted: AmeboEvent;
-    private _bonusAttempted: AmeboEvent;
+    private _fireQuestionPickedEvent: AmeboEvent<number>;
+    private _questionAttempted: AmeboEvent<QuestionAttempted>;
+    private _bonusAttempted: AmeboEvent<string>;
 
     constructor() {
-        this._questionPicked = new AmeboEvent<number>();
+        this._fireQuestionPickedEvent = new AmeboEvent<number>();
         this._bonusAttempted = new AmeboEvent<string>();
         this._questionAttempted = new AmeboEvent<QuestionAttempted>();
     }
 
-    get questionPicked(): AmeboEvent {
-        return this._questionPicked;
+    questionPickedEvent(): AmeboEvent {
+        return this._fireQuestionPickedEvent;
     }
 
-    set questionPicked(value: number) {
-        this._questionPicked.value = value;
+    fireQuestionPickedEvent(value: number) {
+        this._fireQuestionPickedEvent.value = value;
     }
 
-    get bonusAttempted(): AmeboEvent {
+    bonusAttemptedEvent(): AmeboEvent {
         return this._bonusAttempted;
     }
 
-    set bonusAttempted(value: string) {
+    fireBonusAttemptedEvent(value: string) {
         this._bonusAttempted.value = value;
     }
-    get questionAttempted(): AmeboEvent {
+
+    questionAttemptedEvent(): AmeboEvent {
         return this._questionAttempted;
     }
 
-    set questionAttempted(value: QuestionAttempted) {
+    fireQuestionAttemptedEvent(value: QuestionAttempted) {
         this._questionAttempted.value = value;
     }
 

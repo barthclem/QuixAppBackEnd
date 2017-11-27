@@ -25,26 +25,41 @@ export class RoundsManager  {
                  private numberOfRounds: number
     ) {
         this.questionTags = QuixUtility.questionTagExtractor(questions);
+        this._numberOfTeams = this.participatingTeams.length - 1;
+        this.onUserBonusAttempt();
+        this.onUserChoosingAQuestion();
+        this.onUserQuestionAttempt();
+        this.onStartRound();
+        this.onEndRound();
+        this.onStartTeamSession();
+        this.onEndTeamBonusSession();
+        this.onEndOfStageRounds();
+        this.onEndTeamSession();
+
+        this.onStartTeamBonusSession();
+
+
+
     }
 
 
-    chooseTeam () {
+    chooseTeam (): Team {
         this.currentActiveTeam =  this.participatingTeams[Math.floor(this._currentTeamIndex % this.participatingTeams.length)];
         this.incrementIndex();
         console.log(`the current active team is = ${this.currentActiveTeam}`);
         return this.currentActiveTeam;
     }
 
-    bonusTeam () {
+    bonusTeam (): Team {
         return this.participatingTeams[(this._currentTeamIndex + 1) % this.participatingTeams.length];
     }
 
-    incrementIndex () {
+    incrementIndex (): void {
         ++this._currentTeamIndex;
         this._currentTeamIndex %= this.participatingTeams.length;
     }
 
-    updateQuestionTag (questionNumber: number) {
+    updateQuestionTag (questionNumber: number): boolean {
         const targetTag = this.questionTags.find((tag) => {
             return tag.questionNumber === questionNumber;
         });
@@ -54,22 +69,22 @@ export class RoundsManager  {
 
     }
 
-    announceActiveTeam () {
+    announceActiveTeam (): void {
         console.log(`Announce to everybody`);
        this.socketService.selectQuestionBroadcast(this.currentActiveTeam.name, this.questionTags);
     }
 
-    getQuestion ( questionNumber: number)  {
+    getQuestion ( questionNumber: number): Question  {
         this.currentQuestionNumber = questionNumber;
         return this.questions.find( x => x.id === questionNumber);
     }
 
-    answerIsCorrect ( answer: string) {
+    answerIsCorrect ( answer: string): boolean {
         return this.questions[this.currentQuestionNumber].answer === answer;
     }
 
-    waitForUserToChooseQuestion() {
-        this.quizParameters.questionPicked.onValueChanged(
+    onUserChoosingAQuestion(): void {
+        this.quizParameters.questionPickedEvent().onValueChanged(
             (queNumber) => {
                 const question = this.getQuestion(queNumber);
                 this.updateQuestionTag(this.quizParameters.selectedQuestion);
@@ -78,23 +93,23 @@ export class RoundsManager  {
 
     }
 
-    waitForUserToAttemptQuestion() {
-        this.quizParameters.questionAttempted.onValueChanged(
+    onUserQuestionAttempt(): void {
+        this.quizParameters.questionAttemptedEvent().onValueChanged(
             (queObj) => {
-                this.decideOnAnswer(queObj.selectedOption, queObj.timeToAnswer)
+                this.decideOnAnswer(queObj.selectedOption, queObj.timeToAnswer);
             }
         );
     }
 
-    waitForUserToAttemptBonus() {
-        this.quizParameters.bonusAttempted.onValueChanged(
+    onUserBonusAttempt(): void {
+        this.quizParameters.bonusAttemptedEvent().onValueChanged(
             (selectedOption) => {
                 this.decideOnBonusAnswer(selectedOption);
             }
         );
     }
 
-    decideOnAnswer (selectedOption: string, duration: number) {
+    decideOnAnswer (selectedOption: string, duration: number): void {
         if ( this.answerIsCorrect(selectedOption) ) {
            this.currentActiveTeam.scores.push({
                questionNumber: this.currentQuestionNumber,
@@ -102,18 +117,17 @@ export class RoundsManager  {
                duration: duration
            });
            this.socketService.broadcastSelectedAnswer(selectedOption, this.currentActiveTeam.name, true);
-           this.quixEvents.endOfTeamSession = 1;
+            this.quixEvents.fireEndOfTeamSessionEvent(1);
         } else {
             this.socketService.broadcastSelectedAnswer(selectedOption, this.currentActiveTeam.name, false);
-            this.startBonusRound();
         }
     }
 
-    announceBonusTeam () {
+    announceBonusTeam (): void {
         this.socketService.sendBonusBroadcast(this.bonusTeam().name);
     }
 
-    decideOnBonusAnswer (selectedOption: string) {
+    decideOnBonusAnswer (selectedOption: string): void {
         if ( this.answerIsCorrect(selectedOption) ) {
             this.bonusTeam().scores.push({
                 questionNumber: this.currentQuestionNumber,
@@ -124,81 +138,82 @@ export class RoundsManager  {
         } else {
             this.socketService.broadcastSelectedAnswer(selectedOption, this.bonusTeam().name, false);
         }
-        this.quixEvents.endOfTeamBonusSession = 1;
+        this.quixEvents.fireTeamBonusSessionEvent(1);
     }
 
 
-
-    startBonusRound () {
-
-
-    }
-
-    onStartTeamBonusSession () {
-        this.quixEvents.startTeamBonusSession
-            .onValueChanged(()=> {
+    onStartTeamBonusSession (): void {
+        this.quixEvents.startTeamBonusSessionEvent()
+            .onValueChanged(() => {
                 this.announceBonusTeam();
                 const question = this.getQuestion(this.quizParameters.selectedQuestion);
-                if(question) {
+                if (question) {
                     this.socketService.sendQuestionBroadcast(question, this.bonusTeam().name);
                 }
             });
     }
 
-    onEndTeamBonusSession () {
-        this.quixEvents.endOfTeamBonusSession
+    onEndTeamBonusSession (): void {
+        this.quixEvents.endOfTeamBonusSessionEvent()
             .onValueChanged(() => {
-                this.quixEvents.endOfTeamSession =1;
+                this.quixEvents.fireEndOfTeamSessionEvent(1);
             });
     }
 
-    onStartTeamSession () {
-        this.quixEvents.startTeamSession
+    onStartTeamSession (): void {
+        this.quixEvents.startTeamSessionEvent()
             .onValueChanged(() => {
                 this.chooseTeam();
                 this.announceActiveTeam ();
                 this.socketService.selectQuestionBroadcast(this.currentActiveTeam.name, this.questionTags);
-                this.waitForUserToChooseQuestion();
-                const question = this.getQuestion(this.quizParameters.selectedQuestion);
-                if(question) {
-                    this.updateQuestionTag(this.quizParameters.selectedQuestion);
-                    this.socketService.sendQuestionBroadcast(question, this.currentActiveTeam.name);
-                }
             });
     }
 
-    onEndTeamSession () {
-        this.quixEvents.endOfTeamSession
+    onEndTeamSession (): void {
+        this.quixEvents.endOfTeamSessionEvent()
             .onValueChanged(() => {
-                if(this._currentTeamIndex === this.participatingTeams.length-1) {
-                    this.quixEvents.endOfRoundEvent = this._currentTeamIndex;
-                }
-                else {
-                    this.quixEvents.startTeamSession = this._currentRoundIndex;
+                if (this._currentTeamIndex === this._numberOfTeams) {
+                    this.quixEvents.fireEndOfRoundEvent(this._currentRoundIndex);
+                } else {
+                    this.quixEvents.fireNewTeamSessionEvent(this._currentTeamIndex);
                 }
             });
     }
 
 
-    startRound () {
-        this.quixEvents.startRoundEvent
-            .onValueChanged(()=> {
-                console.log(` Round is about to start`);
+    onStartRound (): void {
+        this.quixEvents.startRoundEvent()
+            .onValueChanged((round: number) => {
+                console.log(` Round is about to start ROUND : ${round}`);
                 this._currentTeamIndex = 0;
-                this.quixEvents.startTeamSession = this._currentRoundIndex;
+                this.quixEvents.fireNewTeamSessionEvent(this._currentRoundIndex);
             });
 
     }
+
+    onEndRound (): void {
+        this.quixEvents.endOfRoundEvent()
+            .onValueChanged((round: number) => {
+            console.log(`End of round ${round}`);
+            if (this._currentRoundIndex === this.numberOfRounds) {
+                this.quixEvents.fireEndOfStageRoundsEvent(1);
+            } else {
+                this.quixEvents.firstNewRoundEvent(++this._currentRoundIndex);
+            }
+            });
+    }
+
+    onEndOfStageRounds(): void {
+        this.quixEvents.endOfStageRoundsEvent()
+            .onValueChanged(() => {
+                this.quixEvents.fireEndStageEvent(1);
+            });
+    }
+
 
     startRounds (): string {
         console.log(`Started Rounds`);
-        this.startRound();
-        // for (let j = 0; j < this.numberOfRounds ; j++ ) {
-        //     console.log(`Start of Round - ${j + 1}`);
-        //     this.startRound();
-        //     console.log(`End of Round - ${j + 1}`);
-        // }
-        return 'Finished Round';
+        this.quixEvents.firstNewRoundEvent(1);
     }
 
 }
