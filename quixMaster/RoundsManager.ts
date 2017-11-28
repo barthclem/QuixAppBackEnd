@@ -27,6 +27,11 @@ export class RoundsManager  {
     ) {
         this.questionTags = QuixUtility.questionTagExtractor(questions);
         this._numberOfTeams = this.participatingTeams.length - 1;
+        this.loadAllEventSubscriptions();
+    }
+
+
+    loadAllEventSubscriptions () {
         this.onUserBonusAttempt();
         this.onUserChoosingAQuestion();
         this.onUserQuestionAttempt();
@@ -36,13 +41,8 @@ export class RoundsManager  {
         this.onEndTeamBonusSession();
         this.onEndOfStageRounds();
         this.onEndTeamSession();
-
         this.onStartTeamBonusSession();
-
-
-
     }
-
 
     chooseTeam (): Team {
         this.currentActiveTeam =  this.participatingTeams[Math.floor(this._currentTeamIndex % this.participatingTeams.length)];
@@ -173,7 +173,6 @@ export class RoundsManager  {
             .onValueChanged(() => {
                 this.chooseTeam();
                 this.announceActiveTeam ();
-                this.socketService.selectQuestionBroadcast(this.currentActiveTeam.name, this.questionTags);
             });
     }
 

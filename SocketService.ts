@@ -28,20 +28,19 @@ export class SocketService {
     team to select question
      */
     selectQuestionBroadcast( team: string, questionTags: QuestionTag [] ) {
-
-        this.io.emit('response', {
-            type: QuizEventRegistry.USER_TURN_TO_PICK_QUESTION_EVENT,
-            error: false,
-            data: {
-                team :  team,
-                questionTags: questionTags
-            }
-        });
-
+        const tags = questionTags.map(queTag => { return { questionNumber: queTag.questionNumber, available: queTag.available }; });
         setTimeout(() => {
-            console.log(` User is to pick is fired :=: te`);
+            this.io.emit('response', {
+                type: QuizEventRegistry.USER_TURN_TO_PICK_QUESTION_EVENT,
+                error: false,
+                data: {
+                    team :  team,
+                    questionTags: tags
+                }
+            });
+            console.log(` User is to pick is fired :=: ${team}`);
         }, 4000);
-        console.log(` Question Broadcast Question Tag-> ${JSON.stringify(questionTags)}`);
+        console.log(` Question Broadcast Question Tag-> ${JSON.stringify(tags)}`);
     }
 
 
