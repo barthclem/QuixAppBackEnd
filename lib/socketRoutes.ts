@@ -194,9 +194,10 @@ export class SocketRoutes {
     whenAUserAttemptsABonus (socket: any) {
         socket.on(QuizEventRegistry.BONUS_ATTEMPTED_EVENT, (selectBody: any) => {
             console.log(`Bonus is attempted`);
+            const optionParams = selectBody.optionSelected;
             this.quizParameter.fireBonusAttemptedEvent(
-                {selectedOption: selectBody.selectedOption,
-                timeToAnswer: selectBody.timeToAnswer,
+                {selectedOption: optionParams.selectedOption,
+                timeToAnswer: optionParams.timeToAnswer,
                 selectedOptionIndex: 0
                 });
         });

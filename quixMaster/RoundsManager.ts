@@ -119,6 +119,12 @@ export class RoundsManager  {
         );
     }
 
+    activateFourSecDelay ( func: Function, arg: any) {
+        setTimeout(() => {
+            func(arg);
+        }, 4000);
+    }
+
     decideOnAnswer (selectedOption: string, selectedOptionIndex: number, duration: number): void {
         if ( this.answerIsCorrect(selectedOption) ) {
            this.currentActiveTeam.scores.push({
@@ -127,9 +133,10 @@ export class RoundsManager  {
                duration: duration
            });
            this.socketService.broadcastSelectedAnswer(selectedOption, selectedOptionIndex, this.currentActiveTeam.name, true);
-            this.quixEvents.fireEndOfTeamSessionEvent(1);
+            this.activateFourSecDelay(this.quixEvents.fireEndOfTeamSessionEvent, 1);
         } else {
             this.socketService.broadcastSelectedAnswer(selectedOption, selectedOptionIndex, this.currentActiveTeam.name, false);
+            this.activateFourSecDelay(this.quixEvents.fireTeamBonusSessionEvent, 1);
         }
     }
 
@@ -148,7 +155,7 @@ export class RoundsManager  {
         } else {
             this.socketService.broadcastSelectedAnswer(selectedOption, selectedOptionIndex, this.bonusTeam().name, false);
         }
-        this.quixEvents.fireTeamBonusSessionEvent(1);
+        this.activateFourSecDelay(this.quixEvents.fireEndOfTeamBonusSessionEvent, 1);
     }
 
 

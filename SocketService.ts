@@ -1,5 +1,5 @@
 import {Team} from './helper/Team';
-import {QuizEventRegistry} from './helper/EventRegistry';
+import {QuizEventRegistry, QuizEventRegistry} from './helper/EventRegistry';
 import {Question} from './helper/question';
 import {QuestionTag} from './helper/questionTag';
 /**
@@ -10,6 +10,14 @@ export class SocketService {
 
     }
 
+    /**
+     * @name broadcastNewCategory
+     * @description - this runs at the beginning of a new category.
+     * @param stageName {string} - this is the name of the new category
+     * @param numberOfRound {number} - this is the number of rounds in the new category
+     * @param teams {string[]} - this gives the names of qualified teams for the new category
+     * @returns void
+     */
     broadcastNewCategory(stageName: string, numberOfRound: number, teams: string []) {
         console.log(`Broadcast New Category done`);
         this.io.emit('response', {
@@ -23,9 +31,14 @@ export class SocketService {
         });
 
     }
-    /*
-    This method sends broadcast message to all teams informing them about the
-    team to select question
+
+    /**
+     * @name - selectQuestionBroadcast
+     * @description - This method sends broadcast message to all teams informing them about the
+     * -team to select question
+     * @param team {string} - the name of team to choose a question
+     * @param questionTags {Question []} - the list of available Question Tags
+     * @returns void
      */
     selectQuestionBroadcast( team: string, questionTags: QuestionTag [] ) {
         const tags = questionTags.map(queTag => { return { questionNumber: queTag.questionNumber, available: queTag.available }; });
@@ -44,6 +57,14 @@ export class SocketService {
     }
 
 
+    /**
+     * @name SendQuestionBroadcast
+     * @description - this sends a broadcast of the question selected together with the name of team to answer it
+     * - to all conneted socket
+     * @param question {Question} - this is the object containing the question to be answered and its option
+     * @param teamName {string} - this is the name of the teamName to answer selected question
+     * @returns void
+     */
     sendQuestionBroadcast ( question: Question, teamName: string ): void {
         this.io.emit('response', {
             type: QuizEventRegistry.QUESTION_LOADED_EVENT,
@@ -55,6 +76,16 @@ export class SocketService {
         });
     }
 
+    /**
+     * @name BroadCastSelectAnswer
+     * @description - this is the function responsible of broadcasting the answer selected by a socket
+     * - to all connected sockets (users/ Teams)
+     * @param selectedOption  {string}- the option of question selected by the user/team
+     * @param selectedOptionIndex {number}- this is the index of the selected option
+     * @param teamName {string}- this is the teamName of the user that selected an option
+     * @param isCorrect {boolean}- this gives the correctness of the option selected
+     * @return void
+     */
     broadcastSelectedAnswer (selectedOption: string, selectedOptionIndex: number, teamName: string, isCorrect: boolean) {
         console.log(`Broadcast answer to all guys in the block`);
         this.io.emit('response', {
@@ -69,12 +100,19 @@ export class SocketService {
         });
     }
 
-    sendBonusBroadcast ( nextTeam: string ) {
+    /**
+     * @name SendBonusBroadcast
+     * @description - this function is fired when the current team misses a question
+     * - it gives the next team in the list the oppurtunity to get bonus mark
+     * @param team {string} - name of the team that has bonus question
+     * @return void
+     */
+    sendBonusBroadcast ( team: string ) {
         this.io.emit('response', {
             type: QuizEventRegistry.BONUS_LOADED_EVENT,
             error: false,
             data: {
-                teamName: nextTeam
+                teamName: team
             }
         });
     }
