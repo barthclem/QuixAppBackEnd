@@ -7,11 +7,11 @@ export class QuizParams {
 
     private _questionPickedEvent: AmeboEvent<number>;
     private _questionAttempted: AmeboEvent<QuestionAttempted>;
-    private _bonusAttempted: AmeboEvent<string>;
+    private _bonusAttempted: AmeboEvent<QuestionAttempted>;
 
     constructor() {
         this._questionPickedEvent = new AmeboEvent<number>();
-        this._bonusAttempted = new AmeboEvent<string>();
+        this._bonusAttempted = new AmeboEvent<QuestionAttempted>();
         this._questionAttempted = new AmeboEvent<QuestionAttempted>();
     }
 
@@ -23,11 +23,11 @@ export class QuizParams {
         this._questionPickedEvent.value = value;
     }
 
-    bonusAttemptedEvent(): AmeboEvent<string> {
+    bonusAttemptedEvent(): AmeboEvent<QuestionAttempted> {
         return this._bonusAttempted;
     }
 
-    fireBonusAttemptedEvent(value: string) {
+    fireBonusAttemptedEvent(value: QuestionAttempted) {
         this._bonusAttempted.value = value;
     }
 

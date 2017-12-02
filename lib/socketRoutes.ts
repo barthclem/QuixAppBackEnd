@@ -156,24 +156,49 @@ export class SocketRoutes {
 
     whenATeamPicksQuestion (socket: any) {
         socket.on(QuizEventRegistry.QUESTION_SELECTED_EVENT, (choice: any) => {
-            console.log(`Question Selected by a team : choice ${JSON.stringify(choice)}`);
-            this.quizParameter.fireQuestionPickedEvent(choice.questionNumber);
+            console.log(`Question Selected by a team :  ${socket.userTeam}  member: ${socket.username} selectedNumber: ${choice.questionSelected}`);
+            this.io.emit('response', {
+                type: QuizEventRegistry.PICK_NOTIFY_ALL,
+                error: false,
+                data: {
+                    content: `${socket.userTeam} has selected ${choice.questionSelected}`
+                }
+            });
+            this.io.emit('response', {
+                type: QuizEventRegistry.PICK_NOTIFY_TEAM,
+                error: false,
+                data: {
+                    selectedNumber: choice.questionSelected,
+                    username: socket.username
+
+                }
+            });
+            console.log(` Fired The Question Picked Event`);
+            this.quizParameter.fireQuestionPickedEvent(choice.questionSelected);
+            console.log(` Fired The Event Done`);
         });
     }
 
     whenATeamSelectsAnAnswer (socket: any) {
         socket.on(QuizEventRegistry.QUESTION_ANSWERED_EVENT, (selectBody: any) => {
-            console.log(`Attempt to answer the question is by a team`);
+            console.log(`Attempt to answer the question is by a team : ${JSON.stringify(selectBody.optionSelected)}`);
+            const optionParams = selectBody.optionSelected;
             this.quizParameter.fireQuestionAttemptedEvent(
-                {selectedOption:selectBody.selectedOption,
-                    timeToAnswer: selectBody.timeToAnswer});
+                {selectedOption: optionParams.selectedOption,
+                    timeToAnswer: optionParams.timeToAnswer,
+                    selectedOptionIndex: optionParams.selectedOptionIndex
+                } );
         });
     }
 
     whenAUserAttemptsABonus (socket: any) {
         socket.on(QuizEventRegistry.BONUS_ATTEMPTED_EVENT, (selectBody: any) => {
             console.log(`Bonus is attempted`);
-            this.quizParameter.fireBonusAttemptedEvent(selectBody.selectedOption);
+            this.quizParameter.fireBonusAttemptedEvent(
+                {selectedOption: selectBody.selectedOption,
+                timeToAnswer: selectBody.timeToAnswer,
+                selectedOptionIndex: 0
+                });
         });
     }
 

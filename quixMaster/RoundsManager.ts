@@ -34,7 +34,7 @@ export class RoundsManager  {
     loadAllEventSubscriptions () {
         this.onUserBonusAttempt();
         this.onUserChoosingAQuestion();
-        this.onUserQuestionAttempt();
+        this.onTeamQuestionAnswerAttempt();
         this.onStartRound();
         this.onEndRound();
         this.onStartTeamSession();
@@ -94,6 +94,7 @@ export class RoundsManager  {
     onUserChoosingAQuestion(): void {
         this.quizParameters.questionPickedEvent().onValueChanged(
             (queNumber) => {
+                console.log(`A team  has selected Question => ${queNumber}`);
                 const question = this.getQuestion(queNumber);
                 this.updateQuestionTag(queNumber);
                 this.socketService.sendQuestionBroadcast(question, this.currentActiveTeam.name);
@@ -101,33 +102,34 @@ export class RoundsManager  {
 
     }
 
-    onUserQuestionAttempt(): void {
+    onTeamQuestionAnswerAttempt(): void {
         this.quizParameters.questionAttemptedEvent().onValueChanged(
             (queObj) => {
-                this.decideOnAnswer(queObj.selectedOption, queObj.timeToAnswer);
+                console.log(`On Team Question Attempt => ${JSON.stringify(queObj)}`);
+                this.decideOnAnswer(queObj.selectedOption, queObj.selectedOptionIndex, queObj.timeToAnswer);
             }
         );
     }
 
     onUserBonusAttempt(): void {
         this.quizParameters.bonusAttemptedEvent().onValueChanged(
-            (selectedOption) => {
-                this.decideOnBonusAnswer(selectedOption);
+            (queObj) => {
+                this.decideOnBonusAnswer(queObj.selectedOption, queObj.selectedOptionIndex);
             }
         );
     }
 
-    decideOnAnswer (selectedOption: string, duration: number): void {
+    decideOnAnswer (selectedOption: string, selectedOptionIndex: number, duration: number): void {
         if ( this.answerIsCorrect(selectedOption) ) {
            this.currentActiveTeam.scores.push({
                questionNumber: this.currentQuestionNumber,
                score: 5,
                duration: duration
            });
-           this.socketService.broadcastSelectedAnswer(selectedOption, this.currentActiveTeam.name, true);
+           this.socketService.broadcastSelectedAnswer(selectedOption, selectedOptionIndex, this.currentActiveTeam.name, true);
             this.quixEvents.fireEndOfTeamSessionEvent(1);
         } else {
-            this.socketService.broadcastSelectedAnswer(selectedOption, this.currentActiveTeam.name, false);
+            this.socketService.broadcastSelectedAnswer(selectedOption, selectedOptionIndex, this.currentActiveTeam.name, false);
         }
     }
 
@@ -135,16 +137,16 @@ export class RoundsManager  {
         this.socketService.sendBonusBroadcast(this.bonusTeam().name);
     }
 
-    decideOnBonusAnswer (selectedOption: string): void {
+    decideOnBonusAnswer (selectedOption: string, selectedOptionIndex: number): void {
         if ( this.answerIsCorrect(selectedOption) ) {
             this.bonusTeam().scores.push({
                 questionNumber: this.currentQuestionNumber,
                 score: 2,
                 duration: 0
             });
-            this.socketService.broadcastSelectedAnswer(selectedOption, this.bonusTeam().name, true);
+            this.socketService.broadcastSelectedAnswer(selectedOption, selectedOptionIndex, this.bonusTeam().name, true);
         } else {
-            this.socketService.broadcastSelectedAnswer(selectedOption, this.bonusTeam().name, false);
+            this.socketService.broadcastSelectedAnswer(selectedOption, selectedOptionIndex, this.bonusTeam().name, false);
         }
         this.quixEvents.fireTeamBonusSessionEvent(1);
     }

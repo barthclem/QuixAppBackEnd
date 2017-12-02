@@ -3,7 +3,7 @@ import {EventEmitter} from 'typed-event-emitter';
  * Created by barthclem on 11/25/17.
  */
 
-export class AmeboEvent <T>  extends EventEmitter{
+export class AmeboEvent <T>  extends EventEmitter {
 
     onValueChanged = this.registerEvent<(newValue: any) => any>();
 
@@ -21,6 +21,5 @@ export class AmeboEvent <T>  extends EventEmitter{
         this._value = value;
         this.emit(this.onValueChanged, this._value);
     }
-
 
 }

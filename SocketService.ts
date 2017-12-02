@@ -55,12 +55,14 @@ export class SocketService {
         });
     }
 
-    broadcastSelectedAnswer (selectedOption: string, teamName: string, isCorrect: boolean) {
+    broadcastSelectedAnswer (selectedOption: string, selectedOptionIndex: number, teamName: string, isCorrect: boolean) {
+        console.log(`Broadcast answer to all guys in the block`);
         this.io.emit('response', {
             type: QuizEventRegistry.ANSWERED_LOADED_EVENT,
             error: false,
             data: {
                 selectedOption: selectedOption,
+                selectedOptionIndex: selectedOptionIndex,
                 teamName: teamName,
                 isCorrect: isCorrect
             }

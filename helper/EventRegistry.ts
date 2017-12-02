@@ -36,6 +36,8 @@ export const TimeEventRegistry = {
 };
 
 export const QuizEventRegistry = {
+    PICK_NOTIFY_TEAM: 'PickNotifyTeam',
+    PICK_NOTIFY_ALL: 'PickNotifyAll',
     QUESTION_ANSWERED_EVENT : 'QuestionAnswered',
     QUESTION_SELECTED_EVENT : 'QuestionSelected',
     ANSWERED_LOADED_EVENT : 'AnsweredLoaded',

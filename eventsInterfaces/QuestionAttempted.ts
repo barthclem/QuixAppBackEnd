@@ -4,6 +4,7 @@
 export interface QuestionAttempted {
     selectedOption: string;
     timeToAnswer: number;
+    selectedOptionIndex: number;
 }
 
 
