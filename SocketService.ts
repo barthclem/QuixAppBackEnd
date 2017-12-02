@@ -1,5 +1,5 @@
 import {Team} from './helper/Team';
-import {QuizEventRegistry, QuizEventRegistry} from './helper/EventRegistry';
+import {QuizEventRegistry} from './helper/EventRegistry';
 import {Question} from './helper/question';
 import {QuestionTag} from './helper/questionTag';
 /**
@@ -103,7 +103,7 @@ export class SocketService {
     /**
      * @name SendBonusBroadcast
      * @description - this function is fired when the current team misses a question
-     * - it gives the next team in the list the oppurtunity to get bonus mark
+     * - it gives the next team in the list the opportunity to get bonus mark
      * @param team {string} - name of the team that has bonus question
      * @return void
      */
