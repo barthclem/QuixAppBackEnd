@@ -40,8 +40,9 @@ export  class QuixUtility {
         return questionTags;
     }
 
-    static numberOfRoundsCalc ( question: QuestionStage, noOfTeams: number): QuestionStage {
-       question.numberOfRounds = Math.floor(question.numberOfEntries / noOfTeams);
+    static numberOfRoundsCalc ( question: QuestionStage, noOfTeams: number, maxNumOfRounds: number): QuestionStage {
+        const numberOfRounds =  Math.floor(question.numberOfEntries / noOfTeams);
+       question.numberOfRounds = numberOfRounds > maxNumOfRounds ? maxNumOfRounds : numberOfRounds;
        return question;
     }
 
