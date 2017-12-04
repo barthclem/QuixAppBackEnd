@@ -45,6 +45,7 @@ export class StageManager {
 
     initializeNewStage (): void {
         this._currentStage = this.questionStages[this._currentStageIndex++];
+        console.log(`Welcome to stage ${this._currentStageIndex}`);
         this.socketService.broadcastNewCategory(this._currentStage.title, this._currentStage.numberOfRounds,
             this.qualifiedTeams.map((team: Team) => team.name));
         this.stageRoundsManager = new RoundsManager(this.qualifiedTeams, this._currentStage.entries, this.socketService,
@@ -80,6 +81,7 @@ export class StageManager {
        this._quixEvents.endStageEvent()
            .onValueChanged(() => {
                if (this._currentStageIndex === this._numberOfStages - 1) {
+                   console.log(`End of all rounds of STAGE ${this._currentStageIndex}`);
                    this._quixEvents.fireEndOfAllStagesEvent(1);
                } else {
                    this._quixEvents.firstNewStageEvent(1);

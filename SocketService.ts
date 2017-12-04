@@ -1,4 +1,3 @@
-import {Team} from './helper/Team';
 import {QuizEventRegistry} from './helper/EventRegistry';
 import {Question} from './helper/question';
 import {QuestionTag} from './helper/questionTag';
@@ -108,6 +107,7 @@ export class SocketService {
      * @return void
      */
     sendBonusBroadcast ( team: string ) {
+        console.log(`Start the bonus session ASAP`);
         this.io.emit('response', {
             type: QuizEventRegistry.BONUS_LOADED_EVENT,
             error: false,

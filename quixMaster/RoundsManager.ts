@@ -18,6 +18,7 @@ export class RoundsManager  {
     private _currentTeamIndex: number;
     private _currentRoundIndex: number;
 
+
     constructor (private participatingTeams: Team [],
                  private questions: Question [],
                  private socketService: SocketService,
@@ -26,7 +27,7 @@ export class RoundsManager  {
                  private numberOfRounds: number
     ) {
         this.questionTags = QuixUtility.questionTagExtractor(questions);
-        this._numberOfTeams = this.participatingTeams.length - 1;
+        this._numberOfTeams = this.participatingTeams.length;
         this.loadAllEventSubscriptions();
     }
 
@@ -46,8 +47,7 @@ export class RoundsManager  {
 
     chooseTeam (): Team {
         this.currentActiveTeam =  this.participatingTeams[Math.floor(this._currentTeamIndex % this.participatingTeams.length)];
-        this.incrementIndex();
-        console.log(`the current active team is = ${this.currentActiveTeam}`);
+        console.log(`the current active team is = ${this.currentActiveTeam.name}`);
         return this.currentActiveTeam;
     }
 
@@ -88,7 +88,8 @@ export class RoundsManager  {
     }
 
     answerIsCorrect ( answer: string): boolean {
-        return this.questions[this.currentQuestionNumber].answer === answer;
+        const foundQuestion = this.questions.find( (x: Question) => x.id === this.currentQuestionNumber);
+        return foundQuestion ? foundQuestion.answer === answer : false;
     }
 
     onUserChoosingAQuestion(): void {
@@ -119,9 +120,9 @@ export class RoundsManager  {
         );
     }
 
-    activateFourSecDelay ( func: Function, arg: any) {
+    activateFourSecDelay ( context: any, func: Function, arg: any) {
         setTimeout(() => {
-            func(arg);
+            func(arg).bind(context);
         }, 4000);
     }
 
@@ -133,10 +134,14 @@ export class RoundsManager  {
                duration: duration
            });
            this.socketService.broadcastSelectedAnswer(selectedOption, selectedOptionIndex, this.currentActiveTeam.name, true);
-            this.activateFourSecDelay(this.quixEvents.fireEndOfTeamSessionEvent, 1);
+            setTimeout(() => {
+                this.quixEvents.fireEndOfTeamSessionEvent(1);
+            }, 4000);
         } else {
             this.socketService.broadcastSelectedAnswer(selectedOption, selectedOptionIndex, this.currentActiveTeam.name, false);
-            this.activateFourSecDelay(this.quixEvents.fireTeamBonusSessionEvent, 1);
+            setTimeout(() => {
+                this.quixEvents.fireTeamBonusSessionEvent(1);
+            }, 4000);
         }
     }
 
@@ -155,13 +160,16 @@ export class RoundsManager  {
         } else {
             this.socketService.broadcastSelectedAnswer(selectedOption, selectedOptionIndex, this.bonusTeam().name, false);
         }
-        this.activateFourSecDelay(this.quixEvents.fireEndOfTeamBonusSessionEvent, 1);
+        setTimeout(() => {
+            this.quixEvents.fireEndOfTeamBonusSessionEvent(1);
+        }, 2000);
     }
 
 
     onStartTeamBonusSession (): void {
         this.quixEvents.startTeamBonusSessionEvent()
             .onValueChanged(() => {
+                console.log(`Tell them that it's time for bonus...Team ${this.bonusTeam().name} has the bonus`);
                 this.announceBonusTeam();
                 const question = this.getQuestion(this.currentQuestionNumber);
                 if (question) {
@@ -188,9 +196,10 @@ export class RoundsManager  {
     onEndTeamSession (): void {
         this.quixEvents.endOfTeamSessionEvent()
             .onValueChanged(() => {
-                if (this._currentTeamIndex === this._numberOfTeams) {
+                if ((this._currentTeamIndex + 1) === this._numberOfTeams) {
                     this.quixEvents.fireEndOfRoundEvent(this._currentRoundIndex);
                 } else {
+                    this.incrementIndex();
                     this.quixEvents.fireNewTeamSessionEvent(this._currentTeamIndex);
                 }
             });
@@ -229,6 +238,7 @@ export class RoundsManager  {
 
     startRounds (): void {
         console.log(`Started Rounds`);
+        this._currentRoundIndex = 1;
         this.quixEvents.firstNewRoundEvent(1);
     }
 

@@ -32,7 +32,8 @@ class Server {
     }
 
     static getRooms(): TeamImpl [] {
-        return [ new TeamImpl('Mega'), new TeamImpl('Winner'), new TeamImpl('Stun'), new TeamImpl('Nimb')];
+       // return [ new TeamImpl('Mega'), new TeamImpl('Winner'), new TeamImpl('Stun'), new TeamImpl('Nimb')];
+        return [ new TeamImpl('Mega'), new TeamImpl('Stun')];
     }
 
     configSocket () {
