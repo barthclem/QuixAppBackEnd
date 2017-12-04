@@ -1,3 +1,4 @@
+///<reference path="Team.ts"/>
 import {Team} from './Team';
 import {TeamScore} from './TeamScore';
 /**
@@ -9,11 +10,30 @@ export class TeamImpl implements Team {
     private _qualified: boolean;
     private _members: string[];
     private _teamStatus: string;
+    private _position: number;
+    private _totalScore: number;
 
     constructor (private _name: string) {
         this.members = [];
         this.teamStatus = '';
         this.scores = [];
+        this.totalScore = 0;
+        this.position = 1;
+    }
+
+    get totalScore(): number {
+        return this._totalScore;
+    }
+
+    set totalScore(value: number) {
+        this._totalScore = value;
+    }
+    get position(): number {
+        return this._position;
+    }
+
+    set position(value: number) {
+        this._position = value;
     }
 
     get members(): string[] {
@@ -78,6 +98,16 @@ export class TeamImpl implements Team {
 
     getTeamPopulation () {
         return this.members.length;
+    }
+
+    updateScore ( stageName: string, questionNumber: number, score: number, duration: number) {
+        this.scores.push({
+            stageName: stageName,
+            questionNumber: questionNumber,
+            score: score,
+            duration: duration
+        });
+        this.totalScore += score;
     }
 
 }

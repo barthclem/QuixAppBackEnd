@@ -19,15 +19,18 @@ export class RoundsManager  {
     private _currentRoundIndex: number;
 
 
-    constructor (private participatingTeams: Team [],
-                 private questions: Question [],
-                 private socketService: SocketService,
-                 private quizParameters: QuizParams,
-                 private quixEvents: QuixEvents,
-                 private numberOfRounds: number
+    constructor (
+        private stageName: string,
+        private allTeams: Team [],
+        private qualifiedTeams: Team [],
+        private questions: Question [],
+        private socketService: SocketService,
+        private quizParameters: QuizParams,
+        private quixEvents: QuixEvents,
+        private numberOfRounds: number
     ) {
         this.questionTags = QuixUtility.questionTagExtractor(questions);
-        this._numberOfTeams = this.participatingTeams.length;
+        this._numberOfTeams = this.qualifiedTeams.length;
         this.loadAllEventSubscriptions();
     }
 
@@ -46,18 +49,18 @@ export class RoundsManager  {
     }
 
     chooseTeam (): Team {
-        this.currentActiveTeam =  this.participatingTeams[Math.floor(this._currentTeamIndex % this.participatingTeams.length)];
+        this.currentActiveTeam =  this.qualifiedTeams[Math.floor(this._currentTeamIndex % this.qualifiedTeams.length)];
         console.log(`the current active team is = ${this.currentActiveTeam.name}`);
         return this.currentActiveTeam;
     }
 
     bonusTeam (): Team {
-        return this.participatingTeams[(this._currentTeamIndex + 1) % this.participatingTeams.length];
+        return this.qualifiedTeams[(this._currentTeamIndex + 1) % this.qualifiedTeams.length];
     }
 
     incrementIndex (): void {
         ++this._currentTeamIndex;
-        this._currentTeamIndex %= this.participatingTeams.length;
+        this._currentTeamIndex %= this.qualifiedTeams.length;
     }
 
     updateQuestionTag (questionNumber: number): void {
@@ -120,19 +123,22 @@ export class RoundsManager  {
         );
     }
 
-    activateFourSecDelay ( context: any, func: Function, arg: any) {
-        setTimeout(() => {
-            func(arg).bind(context);
-        }, 4000);
+    sendTeamScores () {
+        console.log(`List Team Position`);
+        let position = 1;
+        if ( this._currentRoundIndex > 1) {
+            this.allTeams = QuixUtility.calcTeamPosition(this.allTeams);
+        }
+        this.allTeams.forEach(team => {
+            team.position = position++;
+            console.log(`\nPosition: ${team.position} TeamName: ${team.name}: TeamScore: ${team.totalScore}`);
+        });
     }
 
     decideOnAnswer (selectedOption: string, selectedOptionIndex: number, duration: number): void {
         if ( this.answerIsCorrect(selectedOption) ) {
-           this.currentActiveTeam.scores.push({
-               questionNumber: this.currentQuestionNumber,
-               score: 5,
-               duration: duration
-           });
+           this.currentActiveTeam.updateScore(this.stageName, this.currentQuestionNumber, 5, duration);
+           this.sendTeamScores();
            this.socketService.broadcastSelectedAnswer(selectedOption, selectedOptionIndex, this.currentActiveTeam.name, true);
             setTimeout(() => {
                 this.quixEvents.fireEndOfTeamSessionEvent(1);
@@ -151,11 +157,8 @@ export class RoundsManager  {
 
     decideOnBonusAnswer (selectedOption: string, selectedOptionIndex: number): void {
         if ( this.answerIsCorrect(selectedOption) ) {
-            this.bonusTeam().scores.push({
-                questionNumber: this.currentQuestionNumber,
-                score: 2,
-                duration: 0
-            });
+            this.currentActiveTeam.updateScore(this.stageName, this.currentQuestionNumber, 2, 0);
+            this.sendTeamScores();
             this.socketService.broadcastSelectedAnswer(selectedOption, selectedOptionIndex, this.bonusTeam().name, true);
         } else {
             this.socketService.broadcastSelectedAnswer(selectedOption, selectedOptionIndex, this.bonusTeam().name, false);

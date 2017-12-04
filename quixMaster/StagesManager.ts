@@ -48,7 +48,7 @@ export class StageManager {
         console.log(`Welcome to stage ${this._currentStageIndex}`);
         this.socketService.broadcastNewCategory(this._currentStage.title, this._currentStage.numberOfRounds,
             this.qualifiedTeams.map((team: Team) => team.name));
-        this.stageRoundsManager = new RoundsManager(this.qualifiedTeams, this._currentStage.entries, this.socketService,
+        this.stageRoundsManager = new RoundsManager(this._currentStage.title, this.teams, this.qualifiedTeams, this._currentStage.entries, this.socketService,
             this.quizParams, this.quixEvents, this._currentStage.numberOfRounds);
     }
 
