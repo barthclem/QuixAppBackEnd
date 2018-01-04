@@ -1,6 +1,7 @@
-import {QuizEventRegistry} from './helper/EventRegistry';
+import {NavEventRegistry, QuizEventRegistry} from './helper/EventRegistry';
 import {Question} from './helper/question';
 import {QuestionTag} from './helper/questionTag';
+import {Team} from './helper/Team';
 /**
  * Created by barthclem on 11/19/17.
  */
@@ -31,6 +32,18 @@ export class SocketService {
 
     }
 
+    broadcastEndOfCategory(stageName: string) {
+        console.log(`Broadcast End of Category`);
+        this.io.emit('response', {
+            type: QuizEventRegistry.END_OF_CATEGORY,
+            error: false,
+            data: {
+                stageName :  stageName
+                }
+        });
+
+    }
+
     /**
      * @name - selectQuestionBroadcast
      * @description - This method sends broadcast message to all teams informing them about the
@@ -40,7 +53,8 @@ export class SocketService {
      * @returns void
      */
     selectQuestionBroadcast( team: string, questionTags: QuestionTag [] ) {
-        const tags = questionTags.map(queTag => { return { questionNumber: queTag.questionNumber, available: queTag.available }; });
+        const tags = questionTags.map(queTag =>
+        { return { questionNumber: queTag.questionNumber, available: queTag.available }; });
         setTimeout(() => {
             this.io.emit('response', {
                 type: QuizEventRegistry.USER_TURN_TO_PICK_QUESTION_EVENT,
@@ -113,6 +127,33 @@ export class SocketService {
             error: false,
             data: {
                 teamName: team
+            }
+        });
+    }
+
+    /**
+     * @name broadcastTeamScoreUpdate
+     * @description - this function is fired after a team has attempted a question/correct
+     * @param teams {Team []} - the list of updated teams
+     * @returns void
+     */
+    broadcastTeamScoreUpdate ( teams: Team [] ) {
+        const teamz = teams.map( t => { const teem = {
+            name: t.name,
+            members: [],
+            teamStatus: t.teamStatus,
+            scores: [],
+            totalScore: t.totalScore,
+            position: t.position,
+            qualified: t.qualified
+        }; return teem; });
+
+        console.log(`Send updated Team objects to all connected teams : ${JSON.stringify(teamz)}`);
+        this.io.emit('response', {
+            type: NavEventRegistry.UPDATE_SCORE,
+            error: false,
+            data: {
+                teams: teamz
             }
         });
     }

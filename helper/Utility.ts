@@ -50,13 +50,13 @@ export  class QuixUtility {
         return questionStages.sort((a, b) => a.index - b.index);
     }
 
-    static calcTeamPosition ( teams: Team []) {
+    static sortTeamsBasedOnPosition (teams: Team []) {
         return teams.sort((teamA , teamB) => {
             const teamATotalTime = teamA.scores.length > 1 ? teamA.scores.map((score) => score.duration).reduce((a, b) => a + b)
                 : teamA.scores[0] ? teamA.scores[0].duration : 0;
             const teamBTotalTime = teamB.scores.length > 1 ? teamB.scores.map((score) => score.duration).reduce((a, b) => a + b)
                 : teamB.scores[0] ? teamB.scores[0].duration : 1;
-            return teamB.totalScore - teamA.totalScore !== 0 ? teamB.totalScore - teamB.totalScore : teamBTotalTime - teamATotalTime;
+            return teamB.totalScore - teamA.totalScore !== 0 ? teamB.totalScore - teamA.totalScore : teamBTotalTime - teamATotalTime;
         });
     }
 

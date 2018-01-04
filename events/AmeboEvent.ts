@@ -1,4 +1,4 @@
-import {EventEmitter} from 'typed-event-emitter';
+import {EventEmitter, Listener} from 'typed-event-emitter';
 /**
  * Created by barthclem on 11/25/17.
  */
@@ -20,6 +20,10 @@ export class AmeboEvent <T>  extends EventEmitter {
     set value(value: T) {
         this._value = value;
         this.emit(this.onValueChanged, this._value);
+    }
+
+    destroyListener() {
+        this.removeListener();
     }
 
 }

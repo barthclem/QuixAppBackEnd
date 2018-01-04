@@ -46,6 +46,11 @@ export const QuizEventRegistry = {
     BONUS_ATTEMPTED_EVENT : 'BonusAttempted',
     END_OF_QUIZ_EVENT : 'EndOfQuiz',
     START_OF_NEW_CATEGORY : 'StartOfNewCategory',
+    END_OF_CATEGORY : 'EndOfACategory',
     USER_DETAILS_TAKEN_EVENT : 'UserDetialsTaken',
     USER_TURN_TO_PICK_QUESTION_EVENT : 'UsersTurnToPickQuestion'
+};
+
+export const NavEventRegistry = {
+    UPDATE_SCORE: 'UpdateScore'
 };

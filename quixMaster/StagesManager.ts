@@ -23,12 +23,13 @@ export class StageManager {
    private _reducibleStageIndex: number;
    private _currentStage: QuestionStage;
    private stageRoundsManager: RoundsManager;
-   private MAX_NUMBER_OF_ROUNDS = 3;
+   private MAX_NUMBER_OF_ROUNDS = 2;
 
     constructor(private questionData: Question[], private teams: Team[], private socketService: SocketService) {
         this.qualifiedTeams = teams;
         this.setUpQuestions(questionData);
         this._quixEvents = new QuixEvents();
+        this.stageRoundsManager = new RoundsManager();
         this.onEndOfAllStagesEvent();
         this.onEndOfStage();
         this.onStartOfAllStages();
@@ -49,21 +50,23 @@ export class StageManager {
     initializeNewStage (): void {
         this._currentStage = this.questionStages[this._currentStageIndex++];
         this.qualifiedTeams = this.produceQualifiedTeamsList();
-        console.log(`Welcome to stage ${this._currentStageIndex}`);
+        console.log(`Welcome to stage ${this._currentStageIndex}\n\n`);
         this.socketService.broadcastNewCategory(this._currentStage.title, this._currentStage.numberOfRounds,
             this.qualifiedTeams.map((team: Team) => team.name));
-        this.stageRoundsManager = new RoundsManager(this._currentStage.title, this.teams, this.qualifiedTeams, this._currentStage.entries,
+        this.stageRoundsManager.setStageRoundsParameters(this._currentStage.title, this.teams, this.qualifiedTeams, this._currentStage.entries,
             this.socketService, this.quizParams, this.quixEvents, this._currentStage.numberOfRounds);
     }
 
     onStartOfAllStages (): void {
         this._quixEvents.startAllStagesEvent()
             .onValueChanged((numberOfStages) => {
+               console.log(`Number of Stages => ${numberOfStages}`);
                this._numberOfStages = numberOfStages;
                this._currentStageIndex = 0;
                this._numberOfReducibleStages = this.determineReducibleStages(this.teams.length);
                 this._reducibleStageIndex = this.determineReducibleStageIndex(this._numberOfStages, this._numberOfReducibleStages);
                this.initializeNewStage();
+               this.stageRoundsManager.loadAllEventSubscriptions();
                this.startNewStage();
             });
     }
@@ -86,13 +89,15 @@ export class StageManager {
    onEndOfStage (): void {
        this._quixEvents.endStageEvent()
            .onValueChanged(() => {
-               if (this._currentStageIndex === this._numberOfStages - 1) {
+               if (this._currentStageIndex === this._numberOfStages) {
                    console.log(`End of all rounds of STAGE ${this._currentStageIndex}`);
                    this._quixEvents.fireEndOfAllStagesEvent(1);
                } else {
-                   this._quixEvents.firstNewStageEvent(1);
-                   this.initializeNewStage();
-                   this.startNewStage();
+                   this.socketService.broadcastEndOfCategory(this._currentStage.title);
+                   setTimeout(() => {
+                       this.initializeNewStage();
+                       this.startNewStage();
+                   }, 4000);
                }
            });
    }
@@ -114,7 +119,6 @@ export class StageManager {
     set quizParams(value: QuizParams) {
         this._quizParams = value;
     }
-
 
     /**
      * @name determineReducibleStages
@@ -144,6 +148,8 @@ export class StageManager {
             default:
                 console.log(`invalid number of teams : the max number of teams is 6`);
         }
+
+        console.log(`The number of reducible stages is => ${noOfReducibleStage}`);
         return noOfReducibleStage;
     }
 
@@ -162,6 +168,7 @@ export class StageManager {
         } else {
             reducibleIndex = 1;
         }
+        console.log(`The starting reducible index is => ${reducibleIndex}`);
         return reducibleIndex;
     }
 
@@ -175,8 +182,10 @@ export class StageManager {
         if (this._currentStageIndex >= this._reducibleStageIndex) {
             const noOfDisqualifiedTeams = Math.round(0.3 * this.qualifiedTeams.length);
             const disQualifiedTeamStartPos = this.qualifiedTeams.length - noOfDisqualifiedTeams;
+            console.log(`We are going to reduce the number of teams for the next stage`);
             return this.qualifiedTeams.filter(team => team.position < disQualifiedTeamStartPos);
         } else {
+            console.log(`Return all the qaulified teams : ${JSON.stringify(this.qualifiedTeams)}`);
             return this.qualifiedTeams;
         }
     }
