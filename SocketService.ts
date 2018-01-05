@@ -7,7 +7,6 @@ import {Team} from './helper/Team';
  */
 export class SocketService {
     constructor(private io: any) {
-
     }
 
     /**

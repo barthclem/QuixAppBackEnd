@@ -24,6 +24,7 @@ export class SocketRoutes {
     private _quizParameter: QuizParams;
 
     private quizRunner: StageManager;
+    private peerConnection: PeersConnection;
     static setSocketParams (socket: any, username: string, room: string) {
         socket.username = username;
         socket.userTeam = room;
@@ -35,6 +36,7 @@ export class SocketRoutes {
         this.team = '';
         this.timerMonitor = new TimerManager(1 * 60);
         this._quizParameter = new QuizParams();
+        this.peerConnection = new PeersConnection();
     }
 
     configSocketConnection (rooms: TeamImpl[], quizRunner: StageManager) {
@@ -42,6 +44,7 @@ export class SocketRoutes {
         this.quizRunner = quizRunner;
         this.quizRunner.quizParams = this.quizParameter;
         this.io.on('connection', (socket: any) => {
+            console.log(`new connection \n`);
             this.addUserToSocket(socket);
             this.whenUserDisconnects(socket);
             this.whenUserIsTyping(socket);
@@ -76,6 +79,9 @@ export class SocketRoutes {
                     timerStarted: this.timerMonitor.timerStarted()
                 });
                 this.io.in(this.team).emit('response', {type: 'connection-event', data: data});
+                this.whenThereIsAPeerConnection(socket);
+                this.whenAPeerSendsSignal(socket);
+                socket.emit('connected', {allClientIds: Array.from(this.peerConnection.getRoomPeersList(this.team).keys())});
             } else {
                 this.io.to(socket.id).emit('response', {
                     type: 'join-response',
@@ -156,7 +162,8 @@ export class SocketRoutes {
 
     whenATeamPicksQuestion (socket: any) {
         socket.on(QuizEventRegistry.QUESTION_SELECTED_EVENT, (choice: any) => {
-            console.log(`Question Selected by a team :  ${socket.userTeam}  member: ${socket.username} selectedNumber: ${choice.questionSelected}`);
+            console.log(`Question Selected by a team :  ${socket.userTeam}  
+            member: ${socket.username} selectedNumber: ${choice.questionSelected}`);
             this.io.emit('response', {
                 type: QuizEventRegistry.PICK_NOTIFY_ALL,
                 error: false,
@@ -202,6 +209,45 @@ export class SocketRoutes {
                 });
         });
     }
+
+    /**
+     * @name whenAPeerSendsSignal
+     * @description this function enable a new webrtc peer to share its connection information with other peers.
+     * @param socket
+     * @return void
+     */
+    whenAPeerSendsSignal (socket) {
+        socket.on('signal', (data) => {
+            console.log(`Signal Sender Id  => ${data.senderId}`);
+            console.log(`Signal Receiver Id  => ${data.receiverId}`);
+
+            if (this.peerConnection.peersList.get(data.receiverId)) {
+                this.peerConnection.peersList.get(data.receiverId).emit('signal', data);
+            }
+
+        });
+    }
+
+    /**
+     * @name whenThereIsAPeerConnection
+     * @description this is function is used to connect a peer webrtc connection to others peers in the
+     * same team
+     * @param socket
+     * @return void
+     */
+    whenThereIsAPeerConnection (socket) {
+        socket.on('uuid', (data) => {
+            socket.pId = data.uuid;
+            const peerRoom = socket.userTeam;
+            this.peerConnection.getRoomPeersList(peerRoom)
+                .forEach(peer => {
+                    peer.emit('new_peer', {newPeerId: data.uuid});
+                });
+            this.peerConnection.addNewPeer(data.uuid, socket);
+            console.log(`A new Guy is trying to join the peer network  ${data.uuid}`);
+        });
+    }
+
 
     get quizParameter(): QuizParams {
         return this._quizParameter;
