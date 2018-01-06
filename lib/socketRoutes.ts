@@ -13,6 +13,7 @@ import {QuizParams} from '../quixMaster/QuixParams';
 import {StageManager} from '../quixMaster/StagesManager';
 import {Team} from '../helper/Team';
 import {TeamImpl} from '../helper/TeamImpl';
+import {PeersConnection} from '../PeersConnection';
 
 export class SocketRoutes {
 
@@ -162,8 +163,8 @@ export class SocketRoutes {
 
     whenATeamPicksQuestion (socket: any) {
         socket.on(QuizEventRegistry.QUESTION_SELECTED_EVENT, (choice: any) => {
-            console.log(`Question Selected by a team :  ${socket.userTeam}  
-            member: ${socket.username} selectedNumber: ${choice.questionSelected}`);
+            console.log(`Question Selected by a team :  ${socket.userTeam}  member : 
+            ${socket.username} selectedNumber: ${choice.questionSelected}`);
             this.io.emit('response', {
                 type: QuizEventRegistry.PICK_NOTIFY_ALL,
                 error: false,
@@ -216,8 +217,8 @@ export class SocketRoutes {
      * @param socket
      * @return void
      */
-    whenAPeerSendsSignal (socket) {
-        socket.on('signal', (data) => {
+    whenAPeerSendsSignal (socket: any) {
+        socket.on('signal', (data: any) => {
             console.log(`Signal Sender Id  => ${data.senderId}`);
             console.log(`Signal Receiver Id  => ${data.receiverId}`);
 
@@ -235,8 +236,8 @@ export class SocketRoutes {
      * @param socket
      * @return void
      */
-    whenThereIsAPeerConnection (socket) {
-        socket.on('uuid', (data) => {
+    whenThereIsAPeerConnection (socket: any) {
+        socket.on('uuid', (data: any) => {
             socket.pId = data.uuid;
             const peerRoom = socket.userTeam;
             this.peerConnection.getRoomPeersList(peerRoom)

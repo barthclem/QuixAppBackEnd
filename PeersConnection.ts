@@ -2,12 +2,12 @@
  * Created by barthclem on 1/5/18.
  */
 
-public class PeersConnection {
+export  class PeersConnection {
 
     private _peersList: Map<number, any>;
 
     constructor () {
-        this.peersList = new Map();
+        this._peersList = new Map();
     }
 
     get peersList(): Map<number, any> {
@@ -25,7 +25,7 @@ public class PeersConnection {
     getRoomPeersList (roomName: string) {
        const roomPeers: Map<number, any> = new Map();
 
-       this._peersList.forEach((uuid, socket) => {
+       this._peersList.forEach((socket, uuid) => {
            if (socket.userTeam === roomName) {
                roomPeers.set(uuid, socket);
            }

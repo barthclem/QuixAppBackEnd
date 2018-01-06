@@ -67,3 +67,4 @@ TeamRoom.js
 coverage/
 server.js
 socketRoutes.js
+encryption/

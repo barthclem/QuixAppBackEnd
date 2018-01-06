@@ -4,7 +4,9 @@
 'use strict';
 import * as express from 'express';
 import * as HTTP from 'http';
+import * as HTTPS from 'https';
 import * as ioServer from 'socket.io';
+import * as fs from 'fs';
 import {SocketRoutes} from './lib/socketRoutes';
 import {TeamRoom} from './lib/TeamRoom';
 import {PseudoQuestions} from './data/QuestionData';
@@ -14,9 +16,15 @@ import {StageManager} from './quixMaster/StagesManager';
 import {TeamImpl} from './helper/TeamImpl';
 import {Team} from './helper/Team';
 
+const  options: any = {
+    key: fs.readFileSync('./encryption/key.pem', 'utf-8'),
+    cert: fs.readFileSync('./encryption/server.crt', 'utf-8')
+};
+
 const app: any = express();
 const http = new HTTP.Server(app);
-const io = ioServer(http);
+const https = new HTTPS.Server(options, app);
+const io = ioServer(https);
 
 class Server {
 
@@ -47,6 +55,10 @@ class Server {
         this.configSocket();
         http.listen(5000, () => {
             console.log('server is started on port 5000');
+        });
+
+        https.listen(3300, () => {
+            console.log('HTTPS server is started on port 3300');
         });
     }
 
