@@ -17,6 +17,7 @@ export class QuixEvents {
     private _endOfTeamSession:  AmeboEvent<number>;
     private _startTeamBonusSession:  AmeboEvent<number>;
     private _endOfTeamBonusSession:  AmeboEvent<number>;
+    private _endOfTimeEvent: AmeboEvent<boolean>;
 
 
     constructor() {
@@ -33,6 +34,7 @@ export class QuixEvents {
         this._endOfTeamSession = new AmeboEvent<number>();
         this._startTeamBonusSession = new AmeboEvent<number>();
         this._endOfTeamBonusSession = new AmeboEvent<number>();
+        this._endOfTimeEvent = new AmeboEvent<boolean>();
     }
 
     endOfTeamBonusSessionEvent(): AmeboEvent<number> {
@@ -57,6 +59,7 @@ export class QuixEvents {
     fireEndOfTeamSessionEvent(value: number) {
         this._endOfTeamSession.value = value;
     }
+
     startTeamSessionEvent(): AmeboEvent<number> {
         return this._startTeamSession;
     }
@@ -133,4 +136,10 @@ export class QuixEvents {
         this._startStageEvent.value = value;
     }
 
+    fireEndOfTimeEvent(value: boolean) {
+        this._endOfTimeEvent.value = value;
+    }
+    startEndOfTimeEvent() {
+        return this._endOfTimeEvent;
+    }
 }

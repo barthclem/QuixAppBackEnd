@@ -14,6 +14,7 @@ import {StageManager} from '../quixMaster/StagesManager';
 import {Team} from '../helper/Team';
 import {TeamImpl} from '../helper/TeamImpl';
 import {PeersConnection} from '../PeersConnection';
+import {AmeboEvent} from '../events/AmeboEvent';
 
 export class SocketRoutes {
 
@@ -23,6 +24,7 @@ export class SocketRoutes {
     private chatRooms: TeamImpl [];
     private timerMonitor: TimerManager;
     private _quizParameter: QuizParams;
+    private _endOfTimeEvent: AmeboEvent<boolean>;
 
     private quizRunner: StageManager;
     private peerConnection: PeersConnection;
@@ -35,9 +37,10 @@ export class SocketRoutes {
         this.io = socketServer;
         this.username = '';
         this.team = '';
-        this.timerMonitor = new TimerManager(1 * 60);
         this._quizParameter = new QuizParams();
         this.peerConnection = new PeersConnection();
+        this._endOfTimeEvent = new AmeboEvent<boolean>();
+        this.timerMonitor = new TimerManager(1 * 60, this.fireEndOfTimeEvents());
     }
 
     configSocketConnection (rooms: TeamImpl[], quizRunner: StageManager) {
@@ -249,12 +252,29 @@ export class SocketRoutes {
         });
     }
 
-
     get quizParameter(): QuizParams {
         return this._quizParameter;
     }
 
     set quizParameter(value: QuizParams) {
         this._quizParameter = value;
+    }
+
+    fireEndOfTimeEvents() {
+        const thes = this;
+        return function () {
+            console.log(`let the show begin`);
+            thes.quizRunner.runStages();
+            thes.io.emit('response', {
+                type: TimeEventRegistry.ENTRY_PAGE_TIMER_STOPPED_EVENT,
+                error: false,
+                data: {
+                    timerActive: false,
+                    timeStoppedRemotely: true
+                },
+                timerStarted: false
+            });
+        }
+
     }
 }

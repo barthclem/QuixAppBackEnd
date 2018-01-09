@@ -1,3 +1,4 @@
+import {AmeboEvent} from '../events/AmeboEvent';
 /**
  * Created by barthclem on 11/16/17.
  */
@@ -7,7 +8,7 @@ export class TimerManager {
     private timer: any;
     private _timerStoppedRemotely: boolean;
 
-    constructor(private countDownTime: number) {
+    constructor(private countDownTime: number, private fireEndOfTimeEvent: Function) {
         this.remainingDuration = countDownTime;
     }
 
@@ -33,6 +34,7 @@ export class TimerManager {
 
     stopTimer () {
         clearInterval(this.timer);
+        this.fireEndOfTimeEvent();
         this.timerStoppedRemotely = true;
     }
 
