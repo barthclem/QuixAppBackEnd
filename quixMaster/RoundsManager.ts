@@ -72,6 +72,8 @@ export class RoundsManager  {
     }
 
     chooseTeam (): Team {
+        console.log(`\n\n\n\n List Of Qualified Teams => ${this.qualifiedTeams}
+         \n ActiveIndex => ${Math.floor(this._currentTeamIndex % this.qualifiedTeams.length)} \n\n\n\n`);
         this.currentActiveTeam =  this.qualifiedTeams[Math.floor(this._currentTeamIndex % this.qualifiedTeams.length)];
         console.log(`the current active team is = ${this.currentActiveTeam.name}`);
         return this.currentActiveTeam;

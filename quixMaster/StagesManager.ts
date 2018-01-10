@@ -179,13 +179,13 @@ export class StageManager {
      * @returns {Team[]}
      */
     produceQualifiedTeamsList (): Team [] {
-        if (this._currentStageIndex >= this._reducibleStageIndex) {
+        if ((this._currentStageIndex >= this._reducibleStageIndex) && (this.qualifiedTeams.length > 2)) {
             const noOfDisqualifiedTeams = Math.round(0.3 * this.qualifiedTeams.length);
             const disQualifiedTeamStartPos = this.qualifiedTeams.length - noOfDisqualifiedTeams;
             console.log(`We are going to reduce the number of teams for the next stage`);
-            return this.qualifiedTeams.filter(team => team.position < disQualifiedTeamStartPos);
+            return this.qualifiedTeams.filter(team => team.position <= disQualifiedTeamStartPos);
         } else {
-            console.log(`Return all the qaulified teams : ${JSON.stringify(this.qualifiedTeams)}`);
+            console.log(`Return all the qualified teams : ${JSON.stringify(this.qualifiedTeams)}`);
             return this.qualifiedTeams;
         }
     }
