@@ -126,7 +126,7 @@ export class RoundsManager  {
                 console.log(`A team  has selected Question => ${queNumber}`);
                 const question = this.getQuestion(queNumber);
                 this.updateQuestionTag(queNumber);
-                this.socketService.sendQuestionBroadcast(question, this.currentActiveTeam.name);
+                this.socketService.sendQuestionBroadcast(question, this.currentActiveTeam.name, this._currentRoundIndex);
             });
 
     }
@@ -202,7 +202,7 @@ export class RoundsManager  {
                 this.announceBonusTeam();
                 const question = this.getQuestion(this.currentQuestionNumber);
                 if (question) {
-                    this.socketService.sendQuestionBroadcast(question, this.bonusTeam().name);
+                    this.socketService.sendQuestionBroadcast(question, this.bonusTeam().name, this._currentRoundIndex);
                 }
             });
     }

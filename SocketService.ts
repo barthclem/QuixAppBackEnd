@@ -75,15 +75,17 @@ export class SocketService {
      * - to all conneted socket
      * @param question {Question} - this is the object containing the question to be answered and its option
      * @param teamName {string} - this is the name of the teamName to answer selected question
+     * @param currentRound {number} - this indicate the current round in a stage of the competition
      * @returns void
      */
-    sendQuestionBroadcast ( question: Question, teamName: string ): void {
+    sendQuestionBroadcast ( question: Question, teamName: string, currentRound: number ): void {
         this.io.emit('response', {
             type: QuizEventRegistry.QUESTION_LOADED_EVENT,
             error: false,
             data: {
                 question :  question,
-                teamName: teamName
+                teamName: teamName,
+                currentRound: currentRound
             }
         });
     }

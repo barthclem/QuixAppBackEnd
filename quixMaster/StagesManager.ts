@@ -53,8 +53,12 @@ export class StageManager {
         console.log(`Welcome to stage ${this._currentStageIndex}\n\n`);
         this.socketService.broadcastNewCategory(this._currentStage.title, this._currentStage.numberOfRounds,
             this.qualifiedTeams.map((team: Team) => team.name));
-        this.stageRoundsManager.setStageRoundsParameters(this._currentStage.title, this.teams, this.qualifiedTeams, this._currentStage.entries,
+        this.stageRoundsManager.setStageRoundsParameters(this._currentStage.title,
+            this.teams, this.qualifiedTeams, this._currentStage.entries,
             this.socketService, this.quizParams, this.quixEvents, this._currentStage.numberOfRounds);
+        setTimeout(() => {
+            this.startNewStage();
+        }, 5000);
     }
 
     onStartOfAllStages (): void {
@@ -96,8 +100,7 @@ export class StageManager {
                    this.socketService.broadcastEndOfCategory(this._currentStage.title);
                    setTimeout(() => {
                        this.initializeNewStage();
-                       this.startNewStage();
-                   }, 4000);
+                   }, 5000);
                }
            });
    }
