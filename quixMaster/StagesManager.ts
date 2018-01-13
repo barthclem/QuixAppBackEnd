@@ -49,7 +49,7 @@ export class StageManager {
 
     initializeNewStage (): void {
         this._currentStage = this.questionStages[this._currentStageIndex++];
-        this.qualifiedTeams = this.produceQualifiedTeamsList();
+        this.qualifiedTeams = this.setTeamQualificationStatus(this.produceQualifiedTeamsList());
         console.log(`Welcome to stage ${this._currentStageIndex}\n\n`);
         this.socketService.broadcastNewCategory(this._currentStage.title, this._currentStage.numberOfRounds,
             this.qualifiedTeams.map((team: Team) => team.name));
@@ -193,4 +193,14 @@ export class StageManager {
         }
     }
 
+    /**
+     * @name setTeamQualificationStatus
+     * @description - this method is responsible for setting the qualification status of teams for the new stage
+     * @param updatedQualifiedTeams - this is the list of the qualified team for the new stage
+     *@return Team[] - this method returns the  updated list of qualified teams for the new stage of the quiz
+     */
+    setTeamQualificationStatus(updatedQualifiedTeams: Team []): Team [] {
+        this.qualifiedTeams.forEach(team => {team.qualified = false; });
+         return updatedQualifiedTeams.map(team => { team.qualified = true; return team; });
+    }
 }
