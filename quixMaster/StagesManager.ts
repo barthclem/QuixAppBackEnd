@@ -79,6 +79,7 @@ export class StageManager {
         this._quixEvents.endOfAllStagesEvent()
             .onValueChanged((numberOfStages) => {
                this._numberOfStages = numberOfStages;
+                this.socketService.broadcastEndOfCompetition();
             });
    }
 
@@ -95,7 +96,10 @@ export class StageManager {
            .onValueChanged(() => {
                if (this._currentStageIndex === this._numberOfStages) {
                    console.log(`End of all rounds of STAGE ${this._currentStageIndex}`);
-                   this._quixEvents.fireEndOfAllStagesEvent(1);
+                   this.socketService.broadcastEndOfCategory(this._currentStage.title);
+                   setTimeout(() => {
+                       this._quixEvents.fireEndOfAllStagesEvent(1);
+                   }, 5000);
                } else {
                    this.socketService.broadcastEndOfCategory(this._currentStage.title);
                    setTimeout(() => {

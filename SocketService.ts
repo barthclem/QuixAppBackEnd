@@ -31,7 +31,13 @@ export class SocketService {
 
     }
 
-    broadcastEndOfCategory(stageName: string) {
+    /**
+     * @name broadcastEndOfCategory
+     * @description - this method is responsible for sending end of a category to all participants of  quiz.
+     * @param stageName {string} - the name of the just concluded category [stageName]
+     * @return {void}
+     */
+    broadcastEndOfCategory(stageName: string): void {
         console.log(`Broadcast End of Category`);
         this.io.emit('response', {
             type: QuizEventRegistry.END_OF_CATEGORY,
@@ -40,7 +46,21 @@ export class SocketService {
                 stageName :  stageName
                 }
         });
+    }
 
+    /**
+     * @name broadcastEndOfCompetition
+     * @description - this sends a broadcast to client informing them of the end of the quiz competition.
+     */
+    broadcastEndOfCompetition(): void {
+        console.log(`Broadcast end of all Categories`);
+        this.io.emit('response', {
+            type: QuizEventRegistry.END_OF_QUIZ_EVENT,
+            error: false,
+            data: {
+                message :  'congratulations you made it to the final'
+            }
+        });
     }
 
     /**
