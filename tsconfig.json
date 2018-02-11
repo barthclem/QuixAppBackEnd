@@ -6,6 +6,8 @@
       "dom"],
     "sourceMap": true,
     "strict": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
     "moduleResolution": "node",
     "outDir": "build",
     "typeRoots": ["node_module/@types"]
