@@ -25,7 +25,20 @@ const app: any = express();
 const http = new HTTP.Server(app);
 const https = new HTTPS.Server(options, app);
 const io = ioServer(https);
+let  gamePort = 3300;
+let gameName = 'Klembat';
 
+if (process.argv[2] === 'child') {
+    const net = require('net');
+    const pipe = new net.Socket({fd: 3});
+     gameName = process.argv[3];
+     gamePort = Number(process.argv[4]);
+    pipe.write(`Game Name => ${process.argv[3]}  PORT: ${process.argv[4]}`);
+    console.log(pipe.write(`Game Name => ${process.argv[3]}  PORT: ${process.argv[4]}`));
+    process.argv.forEach(function (val, index, array) {
+        console.log(index + ': ' + val);
+    });
+}
 class Server {
 
     private socketService: SocketService;
@@ -53,12 +66,12 @@ class Server {
 
     start() {
         this.configSocket();
-        http.listen(5000, () => {
-            console.log('server is started on port 5000');
-        });
+        // http.listen( 5000, () => {
+        //     console.log('server is started on port 5000');
+        // });
 
-        https.listen(3300, () => {
-            console.log('HTTPS server is started on port 3300');
+        https.listen(gamePort || 3300, () => {
+            console.log(`HTTPS server is started on port ${gamePort || 3300}`);
         });
     }
 

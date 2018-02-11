@@ -5,7 +5,29 @@ import {GameModel, IGameModel, ITeamSchema} from '../models/gameModel';
  */
 
 export class GameRoutes {
+    static gameInstancePort = 3005;
     router: Router;
+
+    static startGameInstance ( gameName: string) {
+        const { spawn } = require('child_process');
+        const indexer = spawn(process.argv[0], ['./build/index.js', 'child', gameName, this.gameInstancePort++], {
+            stdio: [null, null, null, 'pipe']
+        });
+
+        indexer.stdout.on('data', (data: any) => {
+            console.log(' Indexer stdout: ' + data.toString());
+        });
+
+        indexer.stderr.on('data', (data: any) => {
+            console.log(`Indexer stderr: ${data}`);
+        });
+
+        indexer.on('close', (code: any) => {
+            if (code !== 0) {
+                console.log(`Indexer process exited with code ${code}`);
+            }
+        });
+    }
     constructor() {
         this.router = Router();
     }
@@ -44,6 +66,7 @@ export class GameRoutes {
                 return next(err);
             }
             console.log(`GAME => ${JSON.stringify(data)}`);
+            GameRoutes.startGameInstance(gameBody.name);
             response.json({success: true, data: data});
         });
     }
@@ -160,6 +183,7 @@ export class GameRoutes {
             const error = new Error('Route not found');
             next(error);
     }
+
 }
 const gameRoutes = new GameRoutes();
 gameRoutes.initiateRoutes();
