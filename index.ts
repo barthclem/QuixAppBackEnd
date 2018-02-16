@@ -8,12 +8,11 @@ import * as HTTPS from 'https';
 import * as ioServer from 'socket.io';
 import * as fs from 'fs';
 import {SocketRoutes} from './lib/socketRoutes';
-import {TeamRoom} from './lib/TeamRoom';
-import {PseudoQuestions} from './data/QuestionData';
-import {QuixUtility} from './helper/Utility';
 import {SocketService} from './SocketService';
 import {StageManager} from './quixMaster/StagesManager';
 import {TeamImpl} from './helper/TeamImpl';
+import * as mongoose from 'mongoose';
+import {GameModel,  ITeamSchema} from './models/gameModel';
 import {Team} from './helper/Team';
 
 const  options: any = {
@@ -41,34 +40,45 @@ if (process.argv[2] === 'child') {
 }
 class Server {
 
+    private  teams: TeamImpl [];
+    private teamRoom: Team;
     private socketService: SocketService;
     private stageRunner: StageManager;
     private socketRoutes: SocketRoutes;
+
     constructor() {
-        this.socketService = new SocketService(io);
-        this.stageRunner = new StageManager([], Server.getRooms(), this.socketService);
-    }
-    static getTeamList() {
-        return [ new TeamRoom('Mega'), new TeamRoom('Winner'), new TeamRoom('Stun'), new TeamRoom('Nimb')];
+        this.teams = [];
     }
 
-    static getRooms(): TeamImpl [] {
-       // return [ new TeamImpl('Mega'), new TeamImpl('Winner'), new TeamImpl('Stun'), new TeamImpl('Nimb')];
-        return [ new TeamImpl('Mega'), new TeamImpl('Stun')];
+
+      getGameTeamList (gamename: string) {
+        GameModel.findOne({'name': gamename}, (err: any, game: any) => {
+            if (err) {
+                console.log(`Game Model Error : ${err}`);
+            }
+           this.teams  = game.teamList.map((g: ITeamSchema) => new TeamImpl(g.teamName));
+            this.socketService = new SocketService(io);
+            console.log(`Teams ---- > ${JSON.stringify(this.teams)}`);
+            this.stageRunner = new StageManager([], this.teams, this.socketService);
+            this.configSocket(this.teams);
+        });
     }
 
-    configSocket () {
-        const rooms = Server.getRooms();
+    configSocket (teams: TeamImpl  []) {
+        console.log(`\n\n Main Server => ${teams}`);
         this.socketRoutes = new SocketRoutes(io);
-        this.socketRoutes.configSocketConnection(rooms, this.stageRunner);
+        this.socketRoutes.configSocketConnection(teams, this.stageRunner);
     }
 
+    initializeDB (): void {
+        mongoose.connect('mongodb://localhost/quix_game')
+            .then(() =>  console.log('connection good'))
+            .catch((err) => console.error(err));
+    }
 
-    start() {
-        this.configSocket();
-        // http.listen( 5000, () => {
-        //     console.log('server is started on port 5000');
-        // });
+    async start() {
+        await this.initializeDB ();
+        this.getGameTeamList(gameName);
 
         https.listen(gamePort || 3300, () => {
             console.log(`HTTPS server is started on port ${gamePort || 3300}`);

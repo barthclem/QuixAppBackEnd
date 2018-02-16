@@ -6,10 +6,12 @@ import {GameModel, IGameModel, ITeamSchema} from '../models/gameModel';
 
 export class GameRoutes {
     static gameInstancePort = 3005;
+    static gamePorts: Map<string, number>  = new Map<string, number>();
     router: Router;
 
     static startGameInstance ( gameName: string) {
         const { spawn } = require('child_process');
+        GameRoutes.gamePorts.set(gameName, this.gameInstancePort);
         const indexer = spawn(process.argv[0], ['./build/index.js', 'child', gameName, this.gameInstancePort++], {
             stdio: [null, null, null, 'pipe']
         });
@@ -20,6 +22,7 @@ export class GameRoutes {
 
         indexer.stderr.on('data', (data: any) => {
             console.log(`Indexer stderr: ${data}`);
+            console.log(`Indexer stderr: ${JSON.stringify(data)}`);
         });
 
         indexer.on('close', (code: any) => {
@@ -36,10 +39,11 @@ export class GameRoutes {
         this.router.get('/', this.getGames);
         this.router.post('/', this.createGame);
         this.router.get('/:gameName', this.getGame);
+        this.router.post('/:gameName', this.userReg);
         this.router.put('/game/:gameName', this.updateGameTeams);
         this.router.put('/team/:teamName', this.updateTeams);
         this.router.delete('/:gameName', this.deleteGame);
-        this.router.use('*', this.handleRoutesError);
+        // this.router.use('*', this.handleRoutesError);
     }
 
     public createGame(request: Request, response: Response, next: NextFunction) {
@@ -47,7 +51,7 @@ export class GameRoutes {
         if (!gameBody.name || !gameBody.teamList) {
             return response.status(200).json({success: false, message: 'ensure the parameters are set\n {name: string, teamList: string []}'});
         }
-        gameBody.link = `http://localhost:4000/${gameBody.name}`;
+        gameBody.link = `http://localhost:4200/g/${gameBody.name}`;
         gameBody.teamList = gameBody.teamList.map((teamName: string) => {
             return <ITeamSchema> {
                 teamName: teamName,
@@ -80,10 +84,23 @@ export class GameRoutes {
          return  response.json({success: true, data: gameList});
       });
    }
+   public userReg(request: Request, response: Response, next: NextFunction) {
+       const gameName = request.params.gameName;
+       const regData = {
+           gameName: gameName,
+           gamePort: GameRoutes.gamePorts.get(gameName)
+       };
+       console.log(`\n\n Game Ports List : ${JSON.stringify(regData)}`);
+       if (GameRoutes.gamePorts.get(gameName)) {
+           return  response.json({success: true, data: regData});
+       } else {
+           return  response.json({success: false, data: { error: 'The game does not exist'}});
+       }
+   }
 
     public getGame(request: Request, response: Response, next: NextFunction) {
         const gameName = request.params.gameName;
-        GameModel.find({'name': gameName}, (err: any, game: any) => {
+        GameModel.findOne({'name': gameName}, (err: any, game: any) => {
             if (err) {
                 return next(err);
             }
@@ -179,7 +196,7 @@ export class GameRoutes {
         });
     }
     handleRoutesError (req: Request, res: Response, next: NextFunction)  {
-            console.log(`Error: Route not found`);
+            console.log(`Error: Route not found - ${req.url}  -- ${req.hostname} -- ${req.path}  -- ${req.params}`);
             const error = new Error('Route not found');
             next(error);
     }

@@ -7,6 +7,7 @@ import {RoundsManager} from './RoundsManager';
 import {SocketService} from '../SocketService';
 import {QuizParams} from './QuixParams';
 import {QuixEvents} from './quixEvents';
+import {TeamImpl} from '../helper/TeamImpl';
 /**
  * Created by barthclem on 11/20/17.
  */
@@ -25,7 +26,7 @@ export class StageManager {
    private stageRoundsManager: RoundsManager;
    private MAX_NUMBER_OF_ROUNDS = 2;
 
-    constructor(private questionData: Question[], private teams: Team[], private socketService: SocketService) {
+    constructor(private questionData: Question[], private teams: TeamImpl[], private socketService: SocketService) {
         this.qualifiedTeams = teams;
         this.setUpQuestions(questionData);
         this._quixEvents = new QuixEvents();

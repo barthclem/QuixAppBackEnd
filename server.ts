@@ -26,6 +26,7 @@ class GameServer {
    }
 
    private middleware() {
+       this.app.use(this.crossOriginMiddleWare());
        this.app.use(bodyParser.json());
        this.app.use(bodyParser.urlencoded({extended: true}));
        this.app.use(logger('dev'));
@@ -43,6 +44,14 @@ class GameServer {
         });
     }
 
+    crossOriginMiddleWare() {
+        return (req: Request, res: Response, next: NextFunction) => {
+            res.header('Access-Control-Allow-Origin', '*');
+            res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+            next();
+        }
+    }
+
     initializeDB (): void {
         mongoose.connect('mongodb://localhost/quix_game')
             .then(() =>  console.log('connection good'))
@@ -51,6 +60,11 @@ class GameServer {
 
 
     handleInternalServerError () {
+       this.app.use((req: Request, res: Response, next: NextFunction)  => {
+            console.log(`Error: Route not found - ${req.url}  -- ${req.hostname} -- ${req.path}  -- ${req.params}`);
+            const error = new Error('Route not found');
+            next(error);
+        });
         this.app.use((error: any, req: Request, res: Response, next: NextFunction) => {
             console.log(`Node Error => ${JSON.stringify(error)}`);
             res.locals.message = error.message;
