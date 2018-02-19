@@ -5,6 +5,8 @@
 
 import * as express from 'express';
 import * as HTTP from 'http';
+import * as HTTPS from 'https';
+import * as fs from 'fs';
 import * as mongoose from 'mongoose';
 import * as logger from 'morgan';
 import * as bodyParser from 'body-parser';
@@ -13,12 +15,20 @@ import {NextFunction, Request, Response} from 'express';
 import GameRoutes from './routes/routes';
 import {Error} from 'tslint/lib/error';
 
+const  options: any = {
+    key: fs.readFileSync('./encryption/key.pem', 'utf-8'),
+    cert: fs.readFileSync('./encryption/server.crt', 'utf-8')
+};
+
+
 class GameServer {
 
     app: any;
     server: any;
+    https: any;
    constructor () {
        this.app = express();
+       this.https = new HTTPS.Server(options, this.app);
        this.initializeDB();
        this.middleware();
        // this.handleRoutesError();
@@ -34,7 +44,7 @@ class GameServer {
    }
 
     start() {
-        this.app.listen(4000, () => {
+        this.https.listen(4000 , () => {
             console.log('server is started on port 4000');
             this.app._router.stack.forEach(function(r: any) {
                 if (r.route && r.route.path) {
@@ -42,6 +52,14 @@ class GameServer {
                 }
             });
         });
+        // this.app.listen(4000, () => {
+        //     console.log('server is started on port 4000');
+        //     this.app._router.stack.forEach(function(r: any) {
+        //         if (r.route && r.route.path) {
+        //             console.log('route', r.route.path);
+        //         }
+        //     });
+        // });
     }
 
     crossOriginMiddleWare() {
