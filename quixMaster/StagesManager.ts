@@ -1,5 +1,5 @@
 import {Question} from '../helper/question';
-import {PseudoQuestions} from '../data/QuestionData';
+import {PseudoQuestions, QuestionData} from '../data/QuestionData';
 import {QuixUtility} from '../helper/Utility';
 import {QuestionStage} from './QuestionStages';
 import {Team} from '../helper/Team';
@@ -38,7 +38,7 @@ export class StageManager {
     }
 
     setUpQuestions (questions: Question []): void {
-        const questionData = PseudoQuestions;
+        const questionData = QuestionData;
         this.stages = QuixUtility.stageExtractor(questionData);
         this.questionStages = QuixUtility.questionClassifier(this.stages, questionData);
         this.questionStages.map(stage => QuixUtility.numberOfRoundsCalc(stage, this.qualifiedTeams.length, this.MAX_NUMBER_OF_ROUNDS));
