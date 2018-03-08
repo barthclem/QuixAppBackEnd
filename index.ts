@@ -56,6 +56,7 @@ class Server {
             if (err) {
                 console.log(`Game Model Error : ${err}`);
             }
+            console.log(`GameName -> ${gamename}`);
            this.teams  = game.teamList.map((g: ITeamSchema) => new TeamImpl(g.teamName));
             this.socketService = new SocketService(io);
             console.log(`Teams ---- > ${JSON.stringify(this.teams)}`);

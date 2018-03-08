@@ -51,7 +51,7 @@ export class GameRoutes {
         if (!gameBody.name || !gameBody.teamList) {
             return response.status(200).json({success: false, message: 'ensure the parameters are set\n {name: string, teamList: string []}'});
         }
-        gameBody.link = `http://localhost:4200/g/${gameBody.name}`;
+        gameBody.link = `https://quix-app.herokuapp.com/g/${gameBody.name}`;
         gameBody.teamList = gameBody.teamList.map((teamName: string) => {
             return <ITeamSchema> {
                 teamName: teamName,

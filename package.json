@@ -7,7 +7,7 @@
     "test": "test"
   },
   "scripts": {
-    "start": "tsc && node build/index.js",
+    "start": "tsc && node build/server.js",
     "debug": "tsc && DEBUG=* node --inspect build/index.js",
     "lint": "lint",
     "test": "istanbul cover _mocha -- -R spec "
